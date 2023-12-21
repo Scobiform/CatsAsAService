@@ -1,6 +1,6 @@
 # CatsAsAService (CaaS)
 
-![GitHub license](https://img.shields.io/github/license/yourusername/CatsAsAService)
+![GitHub license](https://img.shields.io/github/license/Scobiform/CatsAsAService)
 ![Python version](https://img.shields.io/badge/python-3.x-blue.svg)
 
 ## Table of Contents
