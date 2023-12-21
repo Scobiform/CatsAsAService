@@ -1,0 +1,3 @@
+catcontent/cats/*
+*.secret
+*.log
