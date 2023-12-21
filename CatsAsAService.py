@@ -35,6 +35,7 @@ hashtags = [
             'CatsOfMastodon',
             'Caturday',
             'CatsOfFediverse',
+            "FediCats"
 ]
 
 # bad words
