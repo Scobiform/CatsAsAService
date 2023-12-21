@@ -35,7 +35,9 @@ hashtags = [
             'CatsOfMastodon',
             'Caturday',
             'CatsOfFediverse',
-            "FediCats"
+            'FediCats',
+            'MeowMeowMonday',
+            'WhiskersWednesday'
 ]
 
 # bad words
@@ -51,12 +53,9 @@ badWords = [
             'sale',
             'discount',
             'download',
-            'Biden',
-            'Trump',
             'AI',
             'marketing',
             'seo',
-            'Putin'
         ]
 
 # bad hashtags
