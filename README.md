@@ -18,8 +18,8 @@ CatsAsAService is a bot for the Mastodon social network. It boosts and favorites
 **⚠️ Warning:** This bot is easily detectable by instance admins. Please do not use it for abuse or spam.
 
 ## Requirements
-- Python 3.x
-- Mastodon.py (`pip install Mastodon.py`)
+- Python 3.x (https://docs.python.org/3/license.html)
+- Mastodon.py (`pip install Mastodon.py`) - MIT License - https://github.com/halcy/Mastodon.py
 - [Mastodon.py Documentation](https://mastodonpy.readthedocs.io/en/stable/)
 
 ## Setup

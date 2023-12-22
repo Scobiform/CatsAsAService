@@ -20,7 +20,7 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # Demo: https://mastodon.social/@UnitedSpaceCats
 
 # Requirements:
-# Mastodon.py (pip install Mastodon.py)
+# Mastodon.py (pip install Mastodon.py) - MIT License - https://github.com/halcy/Mastodon.py
 # Mastodon.py documentation: https://mastodonpy.readthedocs.io/en/stable/ 
 
 # Configure logging
