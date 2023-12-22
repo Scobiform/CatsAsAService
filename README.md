@@ -1,5 +1,5 @@
 # CatsAsAService (CaaS)
-![image](https://github.com/Scobiform/CatsAsAService/assets/9046630/a0796bd8-35c9-4283-a8e4-b194107758c8)
+![A futuristic cat bot with sleek, metallic features and glowing eyes sitting in the center of a high-tech lab. The bot is in a sitting position with a flexible metal cable tail and sensor panels for ears. The lab is filled with screens and gadgets, indicating advanced technology. The wider format is designed to suit a Mastodon header, with ample space on the sides for a balanced and visually appealing look.](https://github.com/Scobiform/CatsAsAService/assets/9046630/a0796bd8-35c9-4283-a8e4-b194107758c8)
 
 ![GPLv3 License](https://img.shields.io/badge/license-GPLv3-blue.svg)
 ![Python version](https://img.shields.io/badge/python-3.x-blue.svg)
