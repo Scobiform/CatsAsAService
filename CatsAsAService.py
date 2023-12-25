@@ -99,7 +99,8 @@ def createSecrets():
     '''
 
 # Hashtag Listener
-class HashtagListener (StreamListener):
+class HashtagListener(StreamListener):
+    # Constructor
     def __init__(self, mastodon_instance):
         self.mastodon = mastodon_instance
 
@@ -167,10 +168,6 @@ class HashtagListener (StreamListener):
         thread_name = threading.current_thread().name
         logging.info('. ' + thread_name)
 
-    # Called when aborted
-    def on_abort(self, err):
-        logging.error(f"Stream aborted: {err}")
-
 # Content tooting
 def tootContentArchive(mastodon, interval):
 
@@ -229,7 +226,7 @@ def worker(mastodon, postContentbool, interval):
     # Check if the stream is healthy
     try:
         healthy = mastodon.stream_healthy()
-        print(f"Stream healthy: {healthy}")
+        logging.info(f"Stream healthy: {healthy}")
     except Exception as e:
         logging.error(f"Error checking stream health: {e}")
         return
@@ -238,33 +235,28 @@ def worker(mastodon, postContentbool, interval):
     threads = [] # List of threads we will start
 
     # Start the worker
-    try:
-        print('Starting thread worker...')
+    logging.info('Starting thread worker...')
 
-        # Content tooting
-        if postContentbool == 1:
-            contentArchive = Thread(target=tootContentArchive, args=[mastodon, interval])
-            threads.append(contentArchive)
+    # Content tooting
+    if postContentbool == 1:
+        contentArchive = Thread(target=tootContentArchive, args=[mastodon, interval])
+        threads.append(contentArchive)
 
-        # Hashtag listening
-        # Create a listener for each hashtag
-        # The listener will be called when a new status arrives
-        for hashtag in hashtags:
-            listener = HashtagListener(mastodon)
-            stream = Thread(target=mastodon.stream_hashtag, args=[hashtag, listener, 0, 1, 300, 1, 300])
-            threads.append(stream)
+    # Hashtag listening
+    # Create a listener for each hashtag
+    # The listener will be called when a new status arrives
+    for hashtag in hashtags:
+        listener = HashtagListener(mastodon)
+        stream = Thread(target=mastodon.stream_hashtag, args=[hashtag, listener, 0, 1, 300, 1, 300])
+        threads.append(stream)
 
-        # Start all threads
-        for thread in threads:
-            thread.daemon = True
-            thread.start()
+    # Start all threads
+    for thread in threads:
+        thread.daemon = True
+        thread.start()
 
-    except Exception as errorcode:
-        logging.error("ERROR: " + str(errorcode))
-
-        for thread in threads:
-            if thread.is_alive():
-                thread.join()  # Ensure all threads are cleaned up
+    for thread in threads:
+        thread.join()
 
 def main():
     # Interval in seconds for the sleep period between posting content
@@ -273,7 +265,7 @@ def main():
     mastodon = Mastodon(access_token = 'usercred.secret')
 
     # Who Am I
-    print(mastodon.me().username)
+    logging.info(mastodon.me().username)
 
     # Settings
     postContentbool = 0
@@ -285,7 +277,6 @@ def main():
         logging.error("Stopping worker...")
     except Exception as errorcode:
         logging.error("ERROR: " + str(errorcode))
-        print("Stopping worker...")
     
 if __name__ == "__main__":
     main()
