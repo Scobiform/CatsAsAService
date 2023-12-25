@@ -30,9 +30,6 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 
-# Mastodon instance
-mastodon = None
-
 # Hashtags to listen to
 hashtags = [
             'CatsOfMastodon',
@@ -103,80 +100,76 @@ def createSecrets():
 
 # Hashtag Listener
 class HashtagListener (StreamListener):
+    def __init__(self, mastodon_instance):
+        self.mastodon = mastodon_instance
 
     # Called when a new status arrives
     def on_update(self, status):
 
-        print('New status arrived')
-        print('....' + status.account.username)
+        logging.info('New status arrived')
+        logging.info('....' + status.account.username)
         
         # Skip counter
         skipCounter = 0       
         
         try:
             if status.account.username == self.mastodon.me().username:
-                print('....skipped')
+                logging.info('....skipped')
             if status.account.username != self.mastodon.me().username:
                 if status.account.bot == False:
                     # Check if there is a bad account
                     for account in badAccounts:
                         if account == status.account.username:
-                            print('badaccount found - skipped')
+                            logging.info('badaccount found - skipped')
                             skipCounter += 1
                     # Check if there is a bad word
                     for word in badWords:
                         if word in status.content:
-                            print('badword found - skipped')
+                            logging.info('badword found - skipped')
                             skipCounter += 1
                     # Check if there is a bad hashtag
                     for hashtag in badHashtags:
                         for tag in status.tags:
                             if hashtag == tag['name']:
-                                print('badhashtag found - skipped')
+                                logging.info('badhashtag found - skipped')
                                 skipCounter += 1
                     # Check if there is media
                     if len(status.media_attachments) == 0:
-                        print('no media - skipped')
+                        logging.info('no media - skipped')
                         skipCounter += 1
                     # Only boost if skipCounter is 0
                     if skipCounter == 0:
                         if str(status.in_reply_to_account_id) == 'None':
                             self.mastodon.status_reblog(status.id)
                             self.mastodon.status_favourite(status.id)
-                            print('....boosted')
+                            logging.info('....boosted')
             # Set skipCounter to 0
             skipCounter = 0
         except MastodonInternalServerError as errorcode:
             logging.error("MastodonInternalServerError:" + str(errorcode))
-            self.stop_event.set()  # Signal the worker to stop
         except MastodonServiceUnavailableError as errorcode:
             logging.error("MastodonServiceUnavailableError: " + str(errorcode))
-            self.stop_event.set()  # Signal the worker to stop
         except MastodonBadGatewayError as errorcode:
             logging.error("MastodonBadGatewayError: " + str(errorcode))
         except MastodonMalformedEventError as errorcode:
             logging.error("MastodonMalformedEventError: " + str(errorcode))
         except MastodonNetworkError as errorcode:
             logging.error("MastodonNetworkError: " + str(errorcode))
-            self.stop_event.set()  # Signal the worker to stop
         except MastodonAPIError as errorcode:
             logging.error("MastodonAPIError: " + str(errorcode))
-            self.stop_event.set()  # Signal the worker to stop
         except MastodonIllegalArgumentError as errorcode:
             logging.error("MastodonIllegalArgumentError:" + str(errorcode))
-            self.stop_event.set()  # Signal the worker to stop
         except Exception as errorcode:
             logging.error("ERROR: " + str(errorcode))
             
     # Called when a heartbeat arrives
     def handle_heartbeat(self):
         thread_name = threading.current_thread().name
-        print('. ' + thread_name)
+        logging.info('. ' + thread_name)
 
     # Called when aborted
     def on_abort(self, err):
         logging.error(f"Stream aborted: {err}")
-        self.stop_event.set()  # Signal the worker to stop
 
 # Content tooting
 def tootContentArchive(mastodon, interval):
@@ -243,8 +236,6 @@ def worker(mastodon, postContentbool, interval):
 
     # Setting up threads
     threads = [] # List of threads we will start
-    stop_event = threading.Event()  # Event to signal when threads should stop
-    start_time = time.time()  # Record the start time
 
     # Start the worker
     try:
@@ -259,7 +250,7 @@ def worker(mastodon, postContentbool, interval):
         # Create a listener for each hashtag
         # The listener will be called when a new status arrives
         for hashtag in hashtags:
-            listener = HashtagListener()
+            listener = HashtagListener(mastodon)
             stream = Thread(target=mastodon.stream_hashtag, args=[hashtag, listener, 0, 1, 300, 1, 300])
             threads.append(stream)
 
@@ -267,12 +258,6 @@ def worker(mastodon, postContentbool, interval):
         for thread in threads:
             thread.daemon = True
             thread.start()
-
-        # Now join the threads as they should terminate soon
-        for thread in threads:
-            thread.join()
-
-        print('Worker finished')
 
     except Exception as errorcode:
         logging.error("ERROR: " + str(errorcode))
@@ -285,8 +270,6 @@ def main():
     # Interval in seconds for the sleep period between posting content
     interval = 18243
 
-    # Authenticate the app
-    global mastodon
     mastodon = Mastodon(access_token = 'usercred.secret')
 
     # Who Am I
@@ -299,7 +282,7 @@ def main():
     try:
         worker(mastodon, postContentbool, interval)
     except KeyboardInterrupt:
-        print("Stopping worker...")
+        logging.error("Stopping worker...")
     except Exception as errorcode:
         logging.error("ERROR: " + str(errorcode))
         print("Stopping worker...")
