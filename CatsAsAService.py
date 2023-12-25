@@ -30,14 +30,13 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',
     level=logging.INFO)
 
+# Mastodon instance
+mastodon = None
+
 # Hashtags to listen to
 hashtags = [
             'CatsOfMastodon',
-            'Caturday',
-            'CatsOfFediverse',
-            'FediCats',
-            'MeowMeowMonday',
-            'WhiskersWednesday'
+            'Caturday'
 ]
 
 # bad words
@@ -104,54 +103,47 @@ def createSecrets():
 
 # Hashtag Listener
 class HashtagListener (StreamListener):
-    # Constructor
-    def __init__(self, mastodon, stop_event):
-        super().__init__()  # Initialize the parent class
-        self.mastodon = mastodon  # Store the Mastodon instance
-        self.stop_event = stop_event  # Store the stop event
 
     # Called when a new status arrives
     def on_update(self, status):
-        if self.stop_event.is_set():
-            return  # Exit the method if stop_event is set
-        
-        logging.info('New status arrived')
-        logging.info('....' + status.account.username)
+
+        print('New status arrived')
+        print('....' + status.account.username)
         
         # Skip counter
         skipCounter = 0       
         
         try:
             if status.account.username == self.mastodon.me().username:
-                logging.info('....skipped')
+                print('....skipped')
             if status.account.username != self.mastodon.me().username:
                 if status.account.bot == False:
                     # Check if there is a bad account
                     for account in badAccounts:
                         if account == status.account.username:
-                            logging.info('badaccount found - skipped')
+                            print('badaccount found - skipped')
                             skipCounter += 1
                     # Check if there is a bad word
                     for word in badWords:
                         if word in status.content:
-                            logging.info('badword found - skipped')
+                            print('badword found - skipped')
                             skipCounter += 1
                     # Check if there is a bad hashtag
                     for hashtag in badHashtags:
                         for tag in status.tags:
                             if hashtag == tag['name']:
-                                logging.info('badhashtag found - skipped')
+                                print('badhashtag found - skipped')
                                 skipCounter += 1
                     # Check if there is media
                     if len(status.media_attachments) == 0:
-                        logging.info('no media - skipped')
+                        print('no media - skipped')
                         skipCounter += 1
                     # Only boost if skipCounter is 0
                     if skipCounter == 0:
                         if str(status.in_reply_to_account_id) == 'None':
                             self.mastodon.status_reblog(status.id)
                             self.mastodon.status_favourite(status.id)
-                            logging.info('....boosted')
+                            print('....boosted')
             # Set skipCounter to 0
             skipCounter = 0
         except MastodonInternalServerError as errorcode:
@@ -179,7 +171,7 @@ class HashtagListener (StreamListener):
     # Called when a heartbeat arrives
     def handle_heartbeat(self):
         thread_name = threading.current_thread().name
-        logging.info('. ' + thread_name)
+        print('. ' + thread_name)
 
     # Called when aborted
     def on_abort(self, err):
@@ -187,10 +179,7 @@ class HashtagListener (StreamListener):
         self.stop_event.set()  # Signal the worker to stop
 
 # Content tooting
-def tootContentArchive(mastodon, interval, stop_event):
-
-    if stop_event.is_set():
-        return
+def tootContentArchive(mastodon, interval):
 
     # Path where the media files are stored
     path = "catcontent/cats/"
@@ -208,7 +197,7 @@ def tootContentArchive(mastodon, interval, stop_event):
     with open("catcontent/lastPosted.txt", 'r') as file:
         last_posted_str = file.readline().strip()
         last_posted = int(last_posted_str) if last_posted_str.isdigit() else 0
-    logging.info("Current startNumber: " + str(last_posted))
+    print("Current startNumber: " + str(last_posted))
     
     # Get the list of all filenames in the directory and sort them
     all_files = sorted(os.listdir(path), key=lambda x: int(x.split('.')[0]))
@@ -235,19 +224,19 @@ def tootContentArchive(mastodon, interval, stop_event):
             with open("catcontent/lastPosted.txt", 'w') as file:
                 file.write(str(file_num))
 
-            logging.info(f"Posted: {file_num}")
+            print(f"Posted: {file_num}")
             time.sleep(interval)  # Respect the rate limits
             
         except MastodonInternalServerError as errorcode:
             logging.error(f"MastodonInternalServerError: {errorcode}")
 
 # Thread worker
-def worker(mastodon, postContentbool, interval, runtime):
+def worker(mastodon, postContentbool, interval):
 
     # Check if the stream is healthy
     try:
         healthy = mastodon.stream_healthy()
-        logging.info(f"Stream healthy: {healthy}")
+        print(f"Stream healthy: {healthy}")
     except Exception as e:
         logging.error(f"Error checking stream health: {e}")
         return
@@ -259,18 +248,18 @@ def worker(mastodon, postContentbool, interval, runtime):
 
     # Start the worker
     try:
-        logging.info('Starting thread worker...')
+        print('Starting thread worker...')
 
         # Content tooting
         if postContentbool == 1:
-            contentArchive = Thread(target=tootContentArchive, args=[mastodon, interval, stop_event])
+            contentArchive = Thread(target=tootContentArchive, args=[mastodon, interval])
             threads.append(contentArchive)
 
         # Hashtag listening
         # Create a listener for each hashtag
         # The listener will be called when a new status arrives
         for hashtag in hashtags:
-            listener = HashtagListener(mastodon, stop_event)
+            listener = HashtagListener()
             stream = Thread(target=mastodon.stream_hashtag, args=[hashtag, listener, 0, 1, 300, 1, 300])
             threads.append(stream)
 
@@ -279,22 +268,15 @@ def worker(mastodon, postContentbool, interval, runtime):
             thread.daemon = True
             thread.start()
 
-        # Wait for a stop condition (in this case, a simple timeout)
-        while time.time() - start_time < runtime:
-            time.sleep(1)
-
-        # Signal all threads to stop
-        stop_event.set()
-
         # Now join the threads as they should terminate soon
         for thread in threads:
             thread.join()
 
-        logging.info('Worker finished')
+        print('Worker finished')
 
     except Exception as errorcode:
         logging.error("ERROR: " + str(errorcode))
-        stop_event.set()  # Signal all threads to stop in case of an error
+
         for thread in threads:
             if thread.is_alive():
                 thread.join()  # Ensure all threads are cleaned up
@@ -302,21 +284,20 @@ def worker(mastodon, postContentbool, interval, runtime):
 def main():
     # Interval in seconds for the sleep period between posting content
     interval = 18243
-    # Runtime in seconds
-    runtime = 86400
 
     # Authenticate the app
+    global mastodon
     mastodon = Mastodon(access_token = 'usercred.secret')
 
     # Who Am I
-    logging.info(mastodon.me().username)
+    print(mastodon.me().username)
 
     # Settings
-    postContentbool = 1
+    postContentbool = 0
 
     # Start Worker
     try:
-        worker(mastodon, postContentbool, interval, runtime)
+        worker(mastodon, postContentbool, interval)
     except KeyboardInterrupt:
         print("Stopping worker...")
     except Exception as errorcode:
