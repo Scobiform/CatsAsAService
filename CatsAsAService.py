@@ -33,7 +33,8 @@ logging.basicConfig(
 # Hashtags to listen to
 hashtags = [
             'CatsOfMastodon',
-            'Caturday'
+            'Caturday',
+            'MeowMeowMonday'
 ]
 
 # bad words
@@ -118,6 +119,9 @@ class HashtagListener(StreamListener):
                 logging.info('....skipped')
             if status.account.username != self.mastodon.me().username:
                 if status.account.bot == False:
+                    if len(status.hashtags) > 3:
+                        logging.info('....too many hashtags - skipped')
+                        skipCounter += 1
                     # Check if there is a bad account
                     for account in badAccounts:
                         if account == status.account.username:
