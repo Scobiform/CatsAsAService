@@ -264,7 +264,7 @@ def worker(mastodon, postContentbool, interval):
 
 def main():
     # Interval in seconds for the sleep period between posting content
-    interval = 18243
+    interval = 420
 
     mastodon = Mastodon(access_token = 'usercred.secret')
 
