@@ -34,7 +34,20 @@ logging.basicConfig(
 hashtags = [
             'CatsOfMastodon',
             'Caturday',
-            'MeowMeowMonday'
+            'MeowMeowMonday',
+            'HappyMeowYear',
+            'CatsOfTheFediverse',
+            'FediCats',
+            'PfotPorn',
+            'CatContent',
+            'FelineFriday',
+            'WhiskersWednesday',
+            'NotMyCat',
+            "BlackCatsMatter",
+            'AdoptDontShop',
+            'サイベリアン',
+            '猫好き',
+            "МАНУЛ"
 ]
 
 # bad words
@@ -50,9 +63,17 @@ badWords = [
             'sale',
             'discount',
             'download',
-            'AI',
             'marketing',
             'seo',
+            'paypal',
+            'onlyfans',
+            'donate',
+            'paypal',
+            'cashapp',
+            'instagram',
+            'facebook',
+            'twitter',
+            'tiktok',
         ]
 
 # bad hashtags
@@ -119,7 +140,7 @@ class HashtagListener(StreamListener):
                 logging.info('....skipped')
             if status.account.username != self.mastodon.me().username:
                 if status.account.bot == False:
-                    if len(status.hashtags) > 3:
+                    if len(status.tags) > 3:
                         logging.info('....too many hashtags - skipped')
                         skipCounter += 1
                     # Check if there is a bad account
@@ -169,8 +190,7 @@ class HashtagListener(StreamListener):
             
     # Called when a heartbeat arrives
     def handle_heartbeat(self):
-        thread_name = threading.current_thread().name
-        logging.info('. ' + thread_name)
+        return
 
 # Content tooting
 def tootContentArchive(mastodon, interval):
@@ -264,7 +284,7 @@ def worker(mastodon, postContentbool, interval):
 
 def main():
     # Interval in seconds for the sleep period between posting content
-    interval = 420
+    interval = 18243
 
     mastodon = Mastodon(access_token = 'usercred.secret')
 
