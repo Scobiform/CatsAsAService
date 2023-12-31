@@ -46,7 +46,7 @@ hashtags = [
             "BlackCatsMatter",
             'AdoptDontShop',
             'サイベリアン',
-            '猫好き',
+            '猫',
             "МАНУЛ"
 ]
 
