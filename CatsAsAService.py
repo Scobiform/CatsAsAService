@@ -35,10 +35,8 @@ hashtags = [
             'CatsOfMastodon',
             'Caturday',
             'MeowMeowMonday',
-            'HappyMeowYear',
             'CatsOfTheFediverse',
             'FediCats',
-            'PfotPorn',
             'CatContent',
             'FelineFriday',
             'WhiskersWednesday',
@@ -74,6 +72,8 @@ badWords = [
             'facebook',
             'twitter',
             'tiktok',
+            'Combat',
+            'War'
         ]
 
 # bad hashtags
@@ -140,6 +140,7 @@ class HashtagListener(StreamListener):
                 logging.info('....skipped')
             if status.account.username != self.mastodon.me().username:
                 if status.account.bot == False:
+                    # Skip if too many hashtags
                     if len(status.tags) > 3:
                         logging.info('....too many hashtags - skipped')
                         skipCounter += 1
@@ -163,6 +164,13 @@ class HashtagListener(StreamListener):
                     if len(status.media_attachments) == 0:
                         logging.info('no media - skipped')
                         skipCounter += 1
+                    if skipCounter == 0:
+                        # Check if there is alt text
+                        for media in status.media_attachments:
+                            # Skip if no Alt Text
+                            if not media.description:
+                                logging.info('....no alt text - skipped')
+                                skipCounter += 1
                     # Only boost if skipCounter is 0
                     if skipCounter == 0:
                         if str(status.in_reply_to_account_id) == 'None':
