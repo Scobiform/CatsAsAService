@@ -11,8 +11,7 @@ from mastodon.streaming import StreamListener, CallbackStreamListener
 from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayError, MastodonServiceUnavailableError, MastodonNetworkError, MastodonAPIError, MastodonInternalServerError, MastodonIllegalArgumentError
 
 # CatsAsAService (CaaS)
-# GPLv3 License
-# ucsf.scobiform.com
+# AGPLv3 License
 
 # This script will listen to given hashtags 
 # After a hashtag is found, it will conditionally boost and favorite the status
@@ -34,15 +33,10 @@ logging.basicConfig(
 hashtags = [
             'CatsOfMastodon',
             'Caturday',
-            'MeowMeowMonday',
             'CatsOfTheFediverse',
             'FediCats',
             'CatContent',
-            'FelineFriday',
-            'WhiskersWednesday',
-            'NotMyCat',
             "BlackCatsMatter",
-            'AdoptDontShop',
             'サイベリアン',
             '猫',
             "МАНУЛ"
@@ -104,17 +98,20 @@ badAccounts = [
 
 # Create Mastodon App & User
 def createSecrets():
+    # Create App - RUN ONCE
+    '''
     Mastodon.create_app(
-        'UnitedSpaceCats',
-        api_base_url = 'https://mastodon.social',
+        'UnitedSpaceCats', # Your app name
+        api_base_url = 'https://mastodon.social', # Your instance
         to_file = 'clientcred.secret'
     )
+    '''
     
     # Fill in your credentials - RUN ONCE
     '''
     mastodon = Mastodon(client_id = 'clientcred.secret',)
     mastodon.log_in(
-        'your@mail.com',
+        'name@domain.com',
         'password',
         to_file = 'usercred.secret'
     )
@@ -293,6 +290,8 @@ def worker(mastodon, postContentbool, interval):
 def main():
     # Interval in seconds for the sleep period between posting content
     interval = 18243
+
+    createSecrets() # RUN ONCE EDIT YOUR CREDENTIALS
 
     mastodon = Mastodon(access_token = 'usercred.secret')
 
