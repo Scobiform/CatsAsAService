@@ -291,7 +291,7 @@ def main():
     # Interval in seconds for the sleep period between posting content
     interval = 18243
 
-    createSecrets() # RUN ONCE EDIT YOUR CREDENTIALS
+    createSecrets() # RUN ONCE EDIT YOUR CREDENTIALS 
 
     mastodon = Mastodon(access_token = 'usercred.secret')
 
