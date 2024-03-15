@@ -69,7 +69,7 @@ badHashtags = [
 
 # bad accounts
 badAccounts = [
-    'badaccount',
+    'UnitedSpaceCats',
 ]
 
 # Quart app
@@ -158,12 +158,12 @@ class HashtagListener(StreamListener):
                     # if len(status.tags) > 9:
                     #     logging.info('....too many hashtags - skipped')
                     #     skipCounter += 1
-                    # # Check if there is a bad account
-                    # for account in badAccounts:
-                    #     if account == status.account.username:
-                    #         logging.info('badaccount found - skipped')
-                    #         skipCounter += 1
-                    # # Check if there is a bad word
+                    # Check if there is a bad account
+                    for account in badAccounts:
+                        if account == status.account.username:
+                            logging.info('badaccount found - skipped')
+                            skipCounter += 1
+                    # Check if there is a bad word
                     # for word in badWords:
                     #     if word in status.content:
                     #         logging.info('badword found - skipped')
@@ -356,7 +356,7 @@ async def index():
 
     # Get Log
     log = await getLog()
-    
+
     # Settings
     settings = await getSettings()
 
