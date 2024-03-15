@@ -1,4 +1,6 @@
- // Create WebSocket connection
+/* scobiform.com 2024 */
+
+// Create WebSocket connection
  const socket = new WebSocket('ws://' + window.location.host + '/ws');
         
  // Connection opened
