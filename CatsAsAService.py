@@ -25,8 +25,6 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # Mastodon.py documentation: https://mastodonpy.readthedocs.io/en/stable/
 # Quart (pip install Quart) - BSD License - https://github.com/pallets/Quart
 # Quart documentation: https://Quart.palletsprojects.com/en/3.0.x/
-# asyncio (pip install asyncio) - Python Software Foundation License - https://docs.python.org/3/library/asyncio.html
-# aiofiles (pip install aiofiles) - MIT License
 
 # Configuration
 # You can remove your credentials after the first run
@@ -132,7 +130,7 @@ class HashtagListener(StreamListener):
     def on_update(self, status):
 
         # Broadcast status
-        asyncio.run_coroutine_threadsafe(broadcast_message(status.content), self.loop)
+        #asyncio.run_coroutine_threadsafe(broadcast_message(status.content), self.loop)
 
         # Log status
         logging.info('New status arrived')
@@ -150,39 +148,42 @@ class HashtagListener(StreamListener):
                     if len(status.media_attachments) == 0:
                         logging.info('no media - skipped')
                         skipCounter += 1
-                     # Check if there is alt text
-                    for media in status.media_attachments:
-                        # Skip if no Alt Text
-                        if not media.description:
-                            logging.info('....no alt text - skipped')
-                            skipCounter += 1
-                    # Skip if too many hashtags
-                    if len(status.tags) > 9:
-                        logging.info('....too many hashtags - skipped')
-                        skipCounter += 1
-                    # Check if there is a bad account
-                    for account in badAccounts:
-                        if account == status.account.username:
-                            logging.info('badaccount found - skipped')
-                            skipCounter += 1
-                    # Check if there is a bad word
-                    for word in badWords:
-                        if word in status.content:
-                            logging.info('badword found - skipped')
-                            skipCounter += 1
-                    # Check if there is a bad hashtag
-                    for hashtag in badHashtags:
-                        for tag in status.tags:
-                            if hashtag == tag['name']:
-                                logging.info('badhashtag found - skipped')
-                                skipCounter += 1
+                    # # Check if there is alt text
+                    # for media in status.media_attachments:
+                    #     # Skip if no Alt Text
+                    #     if not media.description:
+                    #         logging.info('....no alt text - skipped')
+                    #         skipCounter += 1
+                    # # Skip if too many hashtags
+                    # if len(status.tags) > 9:
+                    #     logging.info('....too many hashtags - skipped')
+                    #     skipCounter += 1
+                    # # Check if there is a bad account
+                    # for account in badAccounts:
+                    #     if account == status.account.username:
+                    #         logging.info('badaccount found - skipped')
+                    #         skipCounter += 1
+                    # # Check if there is a bad word
+                    # for word in badWords:
+                    #     if word in status.content:
+                    #         logging.info('badword found - skipped')
+                    #         skipCounter += 1
+                    # # Check if there is a bad hashtag
+                    # for hashtag in badHashtags:
+                    #     for tag in status.tags:
+                    #         if hashtag == tag['name']:
+                    #             logging.info('badhashtag found - skipped')
+                    #             skipCounter += 1
                     # Only boost if skipCounter is 0
                     if skipCounter == 0:
                         if str(status.in_reply_to_account_id) == 'None':
                             #self.mastodon.status_reblog(status.id)
                             #self.mastodon.status_favourite(status.id)
                             for media in status.media_attachments:
-                                message = f"<a href='{status.url}' target='_blank'><img src='{media.url}' alt='{media.description}' /></a>"
+                                if media.type == "image":
+                                    message = f"<a href='{status.url}' target='_blank'><img src='{media.url}' alt='{media.description}' /></a>"
+                                if media.type == "video":
+                                    message = f"<video src='{media.url}' controls />"
                             {status.media_attachments[0].url}
                             asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
                             logging.info('....boosted')
@@ -209,7 +210,7 @@ class HashtagListener(StreamListener):
     def handle_heartbeat(self):
         try:
             message = heartbeatIcon
-            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
+            #asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
         except Exception as errorcode:
             logging.error("ERROR: " + str(errorcode))
             return
