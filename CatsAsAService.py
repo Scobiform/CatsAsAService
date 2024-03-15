@@ -25,6 +25,8 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # Mastodon.py documentation: https://mastodonpy.readthedocs.io/en/stable/
 # Quart (pip install Quart) - BSD License - https://github.com/pallets/Quart
 # Quart documentation: https://Quart.palletsprojects.com/en/3.0.x/
+# asyncio (pip install asyncio) - Python Software Foundation License - https://docs.python.org/3/library/asyncio.html
+# aiofiles (pip install aiofiles) - MIT License
 
 # Configuration
 # You can remove your credentials after the first run

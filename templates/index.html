@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+        <meta http-equiv="Pragma" content="no-cache">
+        <meta http-equiv="Expires" content="0">
+        <meta charset="UTF-8">
+        <link rel="stylesheet" type="text/css" href="static/style.css">  
+        <link rel="icon" type="image/svg+xml" href="static/Caas.svg">
+        <title></title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="CaaS - Container as a Service">
+        <meta name="keywords" content="CaaS, Container, Docker, Kubernetes, Swarm, Service">
+        <meta name="author" content="CaaS">
+        <meta name="robots" content="index, follow">
+    </head>
+    <body>
+
+    <div class="topPanel">
+        <div class="accountInfo">
+            {{ accountInfo | safe }}
+        </div>
+    </div>
+
+    <div class="leftPanel">
+
+        <div class="logo">
+            <img src="static/Caas.svg" alt="CaaS logo">
+        </div>
+
+        <nav>
+            <a href="/" aria-label="Caas">CaaS</a>
+        </nav>
+
+    </div>
+
+    <div class="rightPanel">
+        <!-- Tab links -->
+        <div class="tab">
+            <button class="tablinks" onclick="openTab(event, 'Messages')">Messages</button>
+            <button class="tablinks" onclick="openTab(event, 'Log')">Log</button>
+            <button class="tablinks" onclick="openTab(event, 'Settings')">Settings</button>
+        </div>
+
+        <!-- Tab content -->
+        <div id="Messages" class="tabcontent">
+            <div id="messages"></div>
+        </div>
+
+        <div id="Log" class="tabcontent">
+            <div class="logInformation">
+                {{ log | safe }}
+            </div>
+        </div>
+
+        <div id="Settings" class="tabcontent">
+            <div class="config">
+                <!-- Include settings.html -->
+                {{ settings | safe }}
+                <!-- Include config-->
+                <!-- {{ config | safe }}-->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer content -->
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+
+    </body>
+</html>
