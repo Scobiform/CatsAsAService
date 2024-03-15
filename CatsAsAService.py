@@ -278,7 +278,7 @@ async def worker(mastodon, postContentbool, interval, loop):
     except Exception as e:
         logging.error(f"Error checking stream health: {e}")
         return
-    
+
     # Content tooting
     if postContentbool == 1:
         await tootContentArchive(mastodon, interval)
