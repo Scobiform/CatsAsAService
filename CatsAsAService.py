@@ -3,12 +3,9 @@ import threading
 import time
 import logging
 import datetime
-import asyncio
-import aiofiles
 from threading import Thread
 from datetime import date
 from concurrent.futures import ThreadPoolExecutor
-from quart import Quart, render_template, websocket
 from mastodon import Mastodon
 from mastodon.streaming import StreamListener, CallbackStreamListener
 from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayError, MastodonServiceUnavailableError, MastodonNetworkError, MastodonAPIError, MastodonInternalServerError, MastodonIllegalArgumentError
@@ -16,25 +13,14 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # CatsAsAService (CaaS)
 # AGPLv3 License
 
-# The web interface will allow you to monitor messages from mastodon and the bot, 
-# start and stop the bot, view logs, change settings, and organize the content archive
-# http://localhost:5000
+# This script will listen to given hashtags 
+# After a hashtag is found, it will conditionally boost and favorite the status
+# It also toots content from the catcontent folder
+# Demo: https://mastodon.social/@UnitedSpaceCats
 
 # Requirements:
 # Mastodon.py (pip install Mastodon.py) - MIT License - https://github.com/halcy/Mastodon.py
-# Mastodon.py documentation: https://mastodonpy.readthedocs.io/en/stable/
-# Quart (pip install Quart) - BSD License - https://github.com/pallets/Quart
-# Quart documentation: https://Quart.palletsprojects.com/en/3.0.x/
-
-# Configuration
-# You can remove your credentials after the first run
-app_name = 'CaaS - CatsAsAService'  # Replace with your desired app name
-instance_url = 'mastodon.social'  # Replace with your Mastodon instance URL
-email = ''  # Replace with your Mastodon account email
-password = ""  # Replace with your Mastodon account password
-
-# UI configuration
-heartbeatIcon = "😻"
+# Mastodon.py documentation: https://mastodonpy.readthedocs.io/en/stable/ 
 
 # Configure logging
 logging.basicConfig(
@@ -49,7 +35,6 @@ hashtags = [
             'Caturday',
             'CatsOfTheFediverse',
             'FediCats',
-            'Cats',
             'CatContent',
             "BlackCatsMatter",
             'サイベリアン',
@@ -59,85 +44,93 @@ hashtags = [
 
 # bad words
 badWords = [
-    'elon musk',
-]
+            'shop',
+            'buy', 
+            'nft', 
+            'coin', 
+            'escort', 
+            'xxx', 
+            'Billionaire',
+            'product',
+            'sale',
+            'discount',
+            'download',
+            'marketing',
+            'seo',
+            'paypal',
+            'onlyfans',
+            'donate',
+            'paypal',
+            'cashapp',
+            'instagram',
+            'facebook',
+            'twitter',
+            'tiktok',
+            'Combat',
+            'War'
+        ]
 
 # bad hashtags
 badHashtags = [
-    'badhashtag',
-]
+            'nft',
+            'coin',
+            'xxx',
+            'ai',
+            'marketing',
+            'seo',
+            'shop',
+            'buy',
+            'sale',
+            'discount',
+            'download',
+            'product',
+            'AI',
+        ]
 
 # bad accounts
 badAccounts = [
-    'badaccount',
+            'Billionaire',
+            'Billionaires',
+            'BillionaireMentor',
+            'Billionaire_Bot',
+            'Billionaire_Bot_',
 ]
 
-# Quart app
-app = Quart(__name__)
-connections = set()
-
-# Create Mastodon app and get user credentials
+# Create Mastodon App & User
 def createSecrets():
-    # Create the secrets files if they don't exist
-    createFile('clientcred.secret')
-    createFile('usercred.secret')
-
-    # Create Mastodon app (client credentials)
+    # Create App - RUN ONCE
+    '''
     Mastodon.create_app(
-        app_name,
-        api_base_url=instance_url,
-        to_file='clientcred.secret'
+        'UnitedSpaceCats', # Your app name
+        api_base_url = 'https://mastodon.social', # Your instance
+        to_file = 'clientcred.secret'
     )
-
-    # Initialize Mastodon with client credentials
-    mastodon = Mastodon(
-        client_id='clientcred.secret',
-        api_base_url=instance_url
-    )
-
-    # Log in and save user credentials
+    '''
+    
+    # Fill in your credentials - RUN ONCE
+    '''
+    mastodon = Mastodon(client_id = 'clientcred.secret',)
     mastodon.log_in(
-        email,
-        password,
-        to_file='usercred.secret'
+        'name@domain.com',
+        'password',
+        to_file = 'usercred.secret'
     )
-
-# If secrets are not present, create them
-def checkForSecrets():
-    if os.path.exists('usercred.secret'):
-        print("Secrets found.")
-    else:
-        print("Secrets not found.")
-        createSecrets()
-
-# Create a file if it doesn't exist
-def createFile(file_name):
-    try:
-        with open(file_name, 'a'):
-            pass
-        print(f"File '{file_name}' created successfully.")
-    except Exception as e:
-        print(f"Error creating '{file_name}': {e}")
+    '''
 
 # Hashtag Listener
 class HashtagListener(StreamListener):
     # Constructor
-    def __init__(self, mastodon_instance, loop):
+    def __init__(self, mastodon_instance):
         self.mastodon = mastodon_instance
-        self.loop = loop
 
     # Called when a new status arrives
     def on_update(self, status):
 
-        # Broadcast status
-        asyncio.run_coroutine_threadsafe(broadcast_message(status.content), self.loop)
-
-        # Log status
         logging.info('New status arrived')
         logging.info('....' + status.account.username)
-
-        # Skip counter - if it's 0, the status will be boosted
-        skipCounter = 1    
+        
+        # Skip counter
+        skipCounter = 0       
         
         try:
             if status.account.username == self.mastodon.me().username:
@@ -202,31 +195,25 @@ class HashtagListener(StreamListener):
             
     # Called when a heartbeat arrives
     def handle_heartbeat(self):
-        try:
-            message = heartbeatIcon
-            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
-        except Exception as errorcode:
-            logging.error("ERROR: " + str(errorcode))
-            return
         return
 
 # Content tooting
-async def tootContentArchive(mastodon, interval):
+def tootContentArchive(mastodon, interval):
 
     # Path where the media files are stored
-    path = "content/images/"
+    path = "catcontent/cats/"
     
     # Create the directory if it doesn't exist
     if not os.path.exists(path):
         os.makedirs(path)
     
     # Create the last posted file if it doesn't exist
-    if not os.path.exists("content/lastPosted.txt"):
-        with open("content/lastPosted.txt", 'w') as file:
+    if not os.path.exists("catcontent/lastPosted.txt"):
+        with open("catcontent/lastPosted.txt", 'w') as file:
             file.write("0")
 
     # Read the last posted number from the file
-    with open("content/lastPosted.txt", 'r') as file:
+    with open("catcontent/lastPosted.txt", 'r') as file:
         last_posted_str = file.readline().strip()
         last_posted = int(last_posted_str) if last_posted_str.isdigit() else 0
     print("Current startNumber: " + str(last_posted))
@@ -253,7 +240,7 @@ async def tootContentArchive(mastodon, interval):
             mastodon.status_post(toot_text, media_ids=metadata["id"], visibility="public")
             
             # Update the last posted number
-            with open("content/lastPosted.txt", 'w') as file:
+            with open("catcontent/lastPosted.txt", 'w') as file:
                 file.write(str(file_num))
 
             print(f"Posted: {file_num}")
@@ -263,13 +250,7 @@ async def tootContentArchive(mastodon, interval):
             logging.error(f"MastodonInternalServerError: {errorcode}")
 
 # Thread worker
-async def worker(mastodon, postContentbool, interval, loop):
-
-    # Setting up threads
-    threads = [] # List of threads we will start
-
-    # Start the worker
-    logging.info('Starting thread worker...')
+def worker(mastodon, postContentbool, interval):
 
     # Check if the stream is healthy
     try:
@@ -278,16 +259,23 @@ async def worker(mastodon, postContentbool, interval, loop):
     except Exception as e:
         logging.error(f"Error checking stream health: {e}")
         return
-    
+
+    # Setting up threads
+    threads = [] # List of threads we will start
+
+    # Start the worker
+    logging.info('Starting thread worker...')
+
     # Content tooting
     if postContentbool == 1:
-        await tootContentArchive(mastodon, interval)
+        contentArchive = Thread(target=tootContentArchive, args=[mastodon, interval])
+        threads.append(contentArchive)
 
     # Hashtag listening
     # Create a listener for each hashtag
     # The listener will be called when a new status arrives
     for hashtag in hashtags:
-        listener = HashtagListener(mastodon, loop)
+        listener = HashtagListener(mastodon)
         stream = Thread(target=mastodon.stream_hashtag, args=[hashtag, listener, 0, 1, 300, 1, 300])
         threads.append(stream)
 
@@ -299,114 +287,27 @@ async def worker(mastodon, postContentbool, interval, loop):
     for thread in threads:
         thread.join()
 
-# Get log file
-async def getLog():
-    async with aiofiles.open('CaaS.log', 'r') as file:
-        log = await file.read()
-    return log
-
-# Clean log file
-async def cleanLog():
-    await broadcast_message("Cleaning log...")
-    with open('CaaS.log', 'w') as file:
-        file.write("")
-    await broadcast_message("Cleaned log.")
-
-# Get settings
-async def getSettings():
-    async with aiofiles.open('components/settings.html', 'r') as file:
-        settings = await file.read()
-    return settings
-
-# Render Account Information
-def AccountInfo():
-    html = f"<ul>"
-    html += f"<li>Username: {user.username}</li>"
-    html += f"<li>Display Name: {user.display_name}</li>"
-    html += f"<li>Followers: {user.followers_count}</li>"
-    html += f"<li>Following: {user.following_count}</li>"
-    html += f"<li>Statuses: {user.statuses_count}</li>"
-    html += f"<li>Created At: {user.created_at}</li>"
-    html += f"<li>URL: {user.url}</li>"
-    html += f"</ul>"
-    return html
-
-# Broadcast message
-async def broadcast_message(message):
-    for connection in connections:
-        try:
-            await connection.send(message)
-        except Exception as e:
-            print(f"Error sending message: {e}")
-
-# Route for the index page
-@app.route('/')
-async def index():
-    # Get Account Information
-    accountInfo = AccountInfo()
-
-    # Get Log
-    log = await getLog()
-
-    # Settings
-    settings = await getSettings()
-
-    return await render_template('index.html',
-        accountInfo=accountInfo,
-        log=log,
-        settings=settings
-    )
-
-# Api route
-app.route("/api")
-async def json():
-    return {"hello": user.username}
-
-# WebSocket route
-@app.websocket("/ws")
-async def ws():
-    connections.add(websocket._get_current_object())
-    try:
-        while True:
-            # Receive a message from the client
-            message = await websocket.receive()
-            print(f"{message}")
-    except:
-        # Handle exceptions, e.g., client disconnecting
-        pass
-    finally:
-        connections.remove(websocket._get_current_object())
-
-async def main():
+def main():
     # Interval in seconds for the sleep period between posting content
     interval = 18243
 
-    # Check for secrets
-    checkForSecrets()  # Ensure this function sets necessary secrets
+    createSecrets() # RUN ONCE EDIT YOUR CREDENTIALS 
 
     mastodon = Mastodon(access_token = 'usercred.secret')
-
-    global user
-    user = mastodon.me()
 
     # Who Am I
     logging.info(mastodon.me().username)
 
     # Settings
-    postContentbool = 0
+    postContentbool = 1
 
     # Start Worker
     try:
-        # Get event loop and run the quart app
-        loop = asyncio.get_event_loop()
-        # Start the worker
-        await worker(mastodon, postContentbool, interval, loop)
-        # Run the Quart app
-        await app.run_task()
+        worker(mastodon, postContentbool, interval)
     except KeyboardInterrupt:
         logging.error("Stopping worker...")
     except Exception as errorcode:
         logging.error("ERROR: " + str(errorcode))
     
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
