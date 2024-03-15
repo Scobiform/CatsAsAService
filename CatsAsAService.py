@@ -204,7 +204,6 @@ class HashtagListener(StreamListener):
     def handle_heartbeat(self):
         try:
             message = heartbeatIcon
-            logging.info(message)
             asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
         except Exception as errorcode:
             logging.error("ERROR: " + str(errorcode))
