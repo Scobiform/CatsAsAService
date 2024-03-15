@@ -16,6 +16,7 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # CatsAsAService (CaaS)
 # AGPLv3 License
 
+
 # The web interface will allow you to monitor messages from mastodon and the bot, 
 # start and stop the bot, view logs, change settings, and organize the content archive
 # http://localhost:5000
