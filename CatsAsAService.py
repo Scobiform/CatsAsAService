@@ -187,6 +187,8 @@ class HashtagListener(StreamListener):
                             {status.media_attachments[0].url}
                             asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
                             logging.info('....boosted')
+                else:
+                    asyncio.run_coroutine_threadsafe(broadcast_message('Bot...'), self.loop)
             # Set skipCounter to 0
             skipCounter = 0
         except MastodonInternalServerError as errorcode:
@@ -325,7 +327,7 @@ async def getSettings():
     return settings
 
 # Render Account Information
-def AccountInfo():
+async def AccountInfo():
     html = f"<ul>"
     html += f"<li>Username: {user.username}</li>"
     html += f"<li>Display Name: {user.display_name}</li>"
@@ -348,12 +350,13 @@ async def broadcast_message(message):
 # Route for the index page
 @app.route('/')
 async def index():
+
     # Get Account Information
-    accountInfo = AccountInfo()
+    accountInfo = await AccountInfo()
 
     # Get Log
     log = await getLog()
-
+    
     # Settings
     settings = await getSettings()
 

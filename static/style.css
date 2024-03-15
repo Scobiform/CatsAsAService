@@ -66,6 +66,11 @@ nav {
   scrollbar-color: var(--c) var(--k);
 }
 
+#messages img {
+  width: 42vw;
+  height: auto;
+}
+
 .logInformation {
   height: 84vh;
   overflow-x: hidden;
