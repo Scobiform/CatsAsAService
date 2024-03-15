@@ -139,15 +139,25 @@ class HashtagListener(StreamListener):
         logging.info('....' + status.account.username)
 
         # Skip counter - if it's 0, the status will be boosted
-        skipCounter = 1    
+        skipCounter = 0  
         
         try:
             if status.account.username == self.mastodon.me().username:
                 logging.info('....skipped')
             if status.account.username != self.mastodon.me().username:
                 if status.account.bot == False:
+                    # Check if there is media
+                    if len(status.media_attachments) == 0:
+                        logging.info('no media - skipped')
+                        skipCounter += 1
+                     # Check if there is alt text
+                    for media in status.media_attachments:
+                        # Skip if no Alt Text
+                        if not media.description:
+                            logging.info('....no alt text - skipped')
+                            skipCounter += 1
                     # Skip if too many hashtags
-                    if len(status.tags) > 3:
+                    if len(status.tags) > 9:
                         logging.info('....too many hashtags - skipped')
                         skipCounter += 1
                     # Check if there is a bad account
@@ -166,22 +176,15 @@ class HashtagListener(StreamListener):
                             if hashtag == tag['name']:
                                 logging.info('badhashtag found - skipped')
                                 skipCounter += 1
-                    # Check if there is media
-                    if len(status.media_attachments) == 0:
-                        logging.info('no media - skipped')
-                        skipCounter += 1
-                    if skipCounter == 0:
-                        # Check if there is alt text
-                        for media in status.media_attachments:
-                            # Skip if no Alt Text
-                            if not media.description:
-                                logging.info('....no alt text - skipped')
-                                skipCounter += 1
                     # Only boost if skipCounter is 0
                     if skipCounter == 0:
                         if str(status.in_reply_to_account_id) == 'None':
-                            self.mastodon.status_reblog(status.id)
-                            self.mastodon.status_favourite(status.id)
+                            #self.mastodon.status_reblog(status.id)
+                            #self.mastodon.status_favourite(status.id)
+                            for media in status.media_attachments:
+                                message = f"<a href='{status.url}' target='_blank'><img src='{media.url}' alt='{media.description}' /></a>"
+                            {status.media_attachments[0].url}
+                            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
                             logging.info('....boosted')
             # Set skipCounter to 0
             skipCounter = 0
