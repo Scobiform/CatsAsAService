@@ -63,7 +63,8 @@ nav {
   height: 84vh;
   overflow-x: hidden;
   overflow-y: scroll;
-  scrollbar-color: var(--c) var(--k);
+  scrollbar-color: var(--c) #ffffff00;
+  scrollbar-width: thin;
 }
 
 #messages img {
@@ -71,10 +72,17 @@ nav {
   height: auto;
 }
 
+#message video {
+  width: 42vw;
+  height: auto;
+}
+
 .logInformation {
   height: 84vh;
   overflow-x: hidden;
-  padding: 20px;
+  overflow-y: scroll;
+  scrollbar-color: var(--c) #ffffff00;
+  scrollbar-width: thin;
 }
 
 .config {
@@ -95,8 +103,8 @@ nav {
 * Style the tab */
 .tab {
   overflow: hidden;
-  border: 1px solid #ccc;
-  background-color: #f1f1f1;
+  border: 1px solid var(--k);
+  background-color: var(--k)
 }
 
 /* Style the buttons inside the tab */
@@ -113,19 +121,20 @@ nav {
 
 /* Change background color of buttons on hover */
 .tab button:hover {
-  background-color: #ddd;
+  background-color: var(--k);
 }
 
 /* Create an active/current tablink class */
 .tab button.active {
-  background-color: #ccc;
+  background-color: var(--m);
+  color: var(--k);
 }
 
 /* Style the tab content */
 .tabcontent {
   display: none;
   padding: 6px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--k);
   border-top: none;
   position: fixed;
   height: 100vh;
