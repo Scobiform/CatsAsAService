@@ -16,21 +16,14 @@ input[type=range]::-webkit-slider-thumb {
     cursor: pointer; 
 }
 
-input[type="submit" i] {
+input[type="submit" i], input[type="reset" i] {
     appearance: auto;
     user-select: none;
-    align-items: flex-start;
     text-align: center;
-    cursor: default;
-    box-sizing: border-box;
     background-color: var(--m);
     color: var(--k);
     white-space: pre;
-    padding-block: 1.4rem;
-    padding-inline: 6px;
-    border-width: 2px;
-    border-style: outset;
-    border-color: buttonborder;
-    border-image: initial;
-    font-size: medium;
+    padding-block: 0.21rem;
+    border: none;
+    font-size: smaller;
 }
