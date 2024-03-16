@@ -1,0 +1,36 @@
+/* scobiform.com 2024 */
+
+input[type="range" i] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: white;
+    width: -webkit-fill-available;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px; 
+    height: 25px;
+    background: var(--m);
+    cursor: pointer; 
+}
+
+input[type="submit" i] {
+    appearance: auto;
+    user-select: none;
+    align-items: flex-start;
+    text-align: center;
+    cursor: default;
+    box-sizing: border-box;
+    background-color: var(--m);
+    color: var(--k);
+    white-space: pre;
+    padding-block: 1.4rem;
+    padding-inline: 6px;
+    border-width: 2px;
+    border-style: outset;
+    border-color: buttonborder;
+    border-image: initial;
+    font-size: medium;
+}
