@@ -1,3 +1,6 @@
 content/images/*
+content/videos/*
+content/text-patterns/*
+content/audios/*
 *.secret
 *.log
