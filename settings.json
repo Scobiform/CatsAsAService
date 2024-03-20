@@ -1,0 +1,43 @@
+{
+    "app_name": "CaaS - CatsAsAService",
+    "instance_url": "mastodon.social",
+    "email": "",
+    "password": "",
+    "UI_configuration": {
+      "heartbeatIcon": "😻"
+    },
+    "Bot_Settings": {
+      "workerStatus": 0
+    },
+    "logging": {
+      "filename": "CaaS.log",
+      "filemode": "a",
+      "format": "%(asctime)s - %(levelname)s - %(message)s",
+      "level": "INFO"
+    },
+    "hashtags": [
+      "CatsOfMastodon",
+      "Caturday",
+      "CatsOfTheFediverse",
+      "FediCats",
+      "Cats",
+      "CatContent",
+      "BlackCatsMatter",
+      "サイベリアン",
+      "猫",
+      "МАНУЛ"
+    ],
+    "bad_words": [
+      "elon musk"
+    ],
+    "bad_hashtags": [
+      "badhashtag"
+    ],
+    "bad_accounts": [
+      "UnitedSpaceCats"
+    ],
+    "postContent": 0,
+    "interval": 18243
+}
+
+  

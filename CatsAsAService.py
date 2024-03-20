@@ -3,6 +3,7 @@ import threading
 import time
 import logging
 import datetime
+import json
 import asyncio
 import aiofiles
 from threading import Thread
@@ -26,61 +27,52 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # Quart (pip install Quart) - BSD License - https://github.com/pallets/Quart
 # Quart documentation: https://Quart.palletsprojects.com/en/3.0.x/
 
-# Configuration
-# You can remove your credentials after the first run
-app_name = 'CaaS - CatsAsAService'  # Replace with your desired app name
-instance_url = 'mastodon.social'  # Replace with your Mastodon instance URL
-email = ''  # Replace with your Mastodon account email
-password = ""  # Replace with your Mastodon account password
+# Loading configuration
+try:
+    with open('settings.json', 'r', encoding='utf-8') as config_file:
+        config = json.load(config_file)
+        print("Configuration loaded successfully.")
+except FileNotFoundError:
+    print("settings.json file not found.")
+except json.JSONDecodeError as e:
+    print(f"An error occurred while decoding settings.json: {e}")
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+
+# Mastodon configuration
+app_name = config['app_name']
+instance_url = config['instance_url']
+email = config['email']
+password = config['password']
 
 # UI configuration
-heartbeatIcon = "😻"
+heartbeatIcon = config['UI_configuration']['heartbeatIcon']
 
 # Bot Settings
-workerStatus = 0 # 0 = Stopped, 1 = Running
-cancel_token = threading.Event() # Cancellation flag for the worker threads
+workerStatus = config['Bot_Settings']['workerStatus']
+# For the cancel_token, since it's a threading.Event, we need to instantiate it in code
+cancel_token = threading.Event()
 
-# Configure logging
+# Configure logging based on the JSON settings
+logging_config = config['logging']
 logging.basicConfig(
-    filename='CaaS.log',
-    filemode='a',  # Append to the log file, don't overwrite
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    level=logging.INFO)
+    filename=logging_config['filename'],
+    filemode=logging_config['filemode'],
+    format=logging_config['format'],
+    level=getattr(logging, logging_config['level'])
+)
 
 # Hashtags to listen to
-hashtags = [
-            'CatsOfMastodon',
-            'Caturday',
-            'CatsOfTheFediverse',
-            'FediCats',
-            'Cats',
-            'CatContent',
-            "BlackCatsMatter",
-            'サイベリアン',
-            '猫',
-            "МАНУЛ"
-]
+hashtags = config['hashtags']
 
-# bad words
-bad_words = [
-    'elon musk',
-]
+# bad words, hashtags, and accounts
+bad_words = config['bad_words']
+bad_hashtags = config['bad_hashtags']
+bad_accounts = config['bad_accounts']
 
-# bad hashtags
-bad_hashtags = [
-    'badhashtag',
-]
-
-# bad accounts
-bad_accounts = [
-    'UnitedSpaceCats',
-]
-
-# Post content (0 = no, 1 = yes)
-postContent = 0
-
-# Interval in seconds for the sleep period between posting content
-interval = 18243
+# Post content and interval
+postContent = config['postContent']
+interval = config['interval']
 
 # Quart app
 app = Quart(__name__)
