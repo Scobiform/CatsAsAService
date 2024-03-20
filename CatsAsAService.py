@@ -9,7 +9,7 @@ import aiofiles
 from threading import Thread
 from datetime import date
 from concurrent.futures import ThreadPoolExecutor
-from quart import Quart, render_template, websocket
+from quart import Quart, render_template, websocket, render_template_string, request, jsonify
 from mastodon import Mastodon
 from mastodon.streaming import StreamListener, CallbackStreamListener
 from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayError, MastodonServiceUnavailableError, MastodonNetworkError, MastodonAPIError, MastodonInternalServerError, MastodonIllegalArgumentError
@@ -18,7 +18,7 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # AGPLv3 License
 
 # The web interface will allow you to monitor messages from mastodon and the bot, 
-# start and stop the bot, view logs, change settings, and organize the content archive
+# start and stop the bot, change settings, and organize the content archive
 # http://localhost:5000
 
 # Requirements:
@@ -27,17 +27,27 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # Quart (pip install Quart) - BSD License - https://github.com/pallets/Quart
 # Quart documentation: https://Quart.palletsprojects.com/en/3.0.x/
 
-# Loading configuration
-try:
-    with open('settings.json', 'r', encoding='utf-8') as config_file:
-        config = json.load(config_file)
-        print("Configuration loaded successfully.")
-except FileNotFoundError:
-    print("settings.json file not found.")
-except json.JSONDecodeError as e:
-    print(f"An error occurred while decoding settings.json: {e}")
-except Exception as e:
-    print(f"An unexpected error occurred: {e}")
+# Configuration
+config = {}
+
+# Load the configuration from the settings.json file
+def load_config():
+    try:
+        with open('settings.json', 'r', encoding='utf-8') as config_file:
+            config = json.load(config_file)
+            print("Configuration loaded successfully.")
+            print(config)
+            return config
+    except FileNotFoundError:
+        print("settings.json file not found.")
+    except json.JSONDecodeError as e:
+        print(f"An error occurred while decoding settings.json: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    return {}
+
+# Load the configuration
+config = load_config()
 
 # Mastodon configuration
 app_name = config['app_name']
@@ -46,18 +56,16 @@ email = config['email']
 password = config['password']
 
 # UI configuration
-heartbeatIcon = config['UI_configuration']['heartbeatIcon']
+heartbeatIcon = config['heartbeatIcon']
 
 # Bot Settings
-workerStatus = config['Bot_Settings']['workerStatus']
-# For the cancel_token, since it's a threading.Event, we need to instantiate it in code
-cancel_token = threading.Event()
+cancel_token = threading.Event() # Cancellation token
 
 # Configure logging based on the JSON settings
 logging_config = config['logging']
 logging.basicConfig(
     filename=logging_config['filename'],
-    filemode=logging_config['filemode'],
+    filemode='a',
     format=logging_config['format'],
     level=getattr(logging, logging_config['level'])
 )
@@ -73,6 +81,14 @@ bad_accounts = config['bad_accounts']
 # Post content and interval
 postContent = config['postContent']
 interval = config['interval']
+
+# Save configuration
+def update_config(configuraion, new_data):
+    # Update the existing configuration with new data
+    configuraion.update(new_data)
+    # Save the updated configuration back to the file
+    with open('settings.json', 'w', encoding='utf-8') as config_file:
+        json.dump(configuraion, config_file, indent=4)
 
 # Quart app
 app = Quart(__name__)
@@ -374,25 +390,11 @@ async def worker(mastodon, postContentbool, interval, loop):
     for thread in threads:
         thread.join()
 
-# Get log file
-async def get_log():
-    async with aiofiles.open('CaaS.log', 'r') as file:
-        log = await file.read()
-    return log
-
-# Clean log file
-async def clean_log():
-    await broadcast_message("Cleaning log...")
-    with open('CaaS.log', 'w') as file:
-        file.write("")
-    await broadcast_message("Cleaned log.")
-
 # Get settings
 async def get_settings():
-    ''' Placeholder for settings'''
     async with aiofiles.open('components/settings.html', 'r', encoding='utf-8') as file:
-        settings = await file.read()
-    return settings
+        settings_template = await file.read()
+    return await render_template_string(settings_template, configuration=config)
 
 # Get worker status
 async def get_worker_status():
@@ -421,9 +423,6 @@ async def index():
     # Get Account Information
     accountInfo = await get_account()
 
-    # Get Log
-    log = await get_log()
-
     # Settings
     settings = await get_settings()
 
@@ -432,16 +431,21 @@ async def index():
 
     return await render_template('index.html',
         accountInfo=accountInfo,
-        log=log,
         settings=settings,
         workerStatus=workerStatus
     )
 
-# Api route
-app.route("/api")
-async def json():
-    return {"hello": "world"}
+# Submit settings
+@app.route('/submit_settings', methods=['POST'])
+async def submit_settings():
+    form_data = await request.form
+    new_data_dict = {key: form_data.getlist(key) if len(form_data.getlist(key)) > 1 else form_data[key] for key in form_data}
 
+    # Update the configuration with new data
+    update_config(config, new_data_dict)
+
+    return await index()
+    
 # WebSocket route
 @app.websocket("/ws")
 async def ws():

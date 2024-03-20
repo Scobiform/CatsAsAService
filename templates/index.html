@@ -40,7 +40,6 @@
 
         <div class="tab">
             <button class="tablinks" onclick="openTab(event, 'Messages')">Messages</button>
-            <button class="tablinks" onclick="openTab(event, 'Log')">Log</button>
             <button class="tablinks" onclick="openTab(event, 'Settings')">Settings</button>
         </div>
 
@@ -49,18 +48,9 @@
             <div id="messages"></div>
         </div>
 
-        <div id="Log" class="tabcontent">
-            <div class="logInformation">
-                {{ log | safe }}
-            </div>
-        </div>
-
         <div id="Settings" class="tabcontent">
             <div class="config">
-                <!-- Include settings.html -->
                 {{ settings | safe }}
-                <!-- Include config-->
-                <!-- {{ config | safe }}-->
             </div>
         </div>
     </div>
