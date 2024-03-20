@@ -143,6 +143,7 @@ class HashtagListener(StreamListener):
     def __init__(self, mastodon_instance, loop):
         self.mastodon = mastodon_instance
         self.loop = loop
+        self.heartbeatIcon = config['heartbeatIcon']
 
     # Called when a new status arrives
     def on_update(self, status):
@@ -229,7 +230,7 @@ class HashtagListener(StreamListener):
     # Called when a heartbeat arrives
     def handle_heartbeat(self):
         try:
-            message = heartbeatIcon
+            message = self.heartbeatIcon
             asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
         except Exception as errorcode:
             logging.error("ERROR: " + str(errorcode))

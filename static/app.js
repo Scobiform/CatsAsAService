@@ -11,7 +11,7 @@
  // Listen for messages
  socket.addEventListener('message', function (event) {
      //console.log('Message from server ', event.data);
-     document.getElementById('messages').innerHTML += event.data + '<br>';
+     document.getElementById('messages').innerHTML += event.data;
  });
 
  // Activate the first tab
