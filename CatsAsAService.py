@@ -203,7 +203,6 @@ class HashtagListener(StreamListener):
                                     message = f"<a href='{status.url}' target='_blank'><img src='{media.url}' alt='{media.description}' /></a>"
                                 if media.type == "video":
                                     message = f"<video src='{media.url}' controls />"
-                            {status.media_attachments[0].url}
                             asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
                             logging.info('....boosted')
                 else:

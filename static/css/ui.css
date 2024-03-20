@@ -85,6 +85,8 @@ input[type="submit" i], input[type="reset" i] {
     overflow-y: scroll;
     scrollbar-color: var(--c) var(--k);
     scrollbar-width: thin;
+    width: -webkit-fill-available;
+    word-wrap: break-word;
   }
   
   #messages img {
