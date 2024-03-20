@@ -34,10 +34,14 @@ CatsAsAService is a bot for the Mastodon social network. It boosts and favorites
 
 ## Usage
 
-- Set your Mastodon email and password once. 
-- Set your desired hashtags, bad words, and accounts in the script.
+- Set your Mastodon email and password once in the `settings.json`
+- Set your desired hashtags, bad words, and accounts
 - Run the script: `python3 CatsAsAService.py`.
 - Use `Ctrl+C` to stop the script.
+
+The web interface will allow you to monitor messages from mastodon and the bot, 
+start and stop the bot, change settings, and organize the content archive
+`http://localhost:5000`
 
 ## License
 
