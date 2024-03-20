@@ -36,6 +36,10 @@ password = ""  # Replace with your Mastodon account password
 # UI configuration
 heartbeatIcon = "😻"
 
+# Bot Settings
+workerStatus = 0 # 0 = Stopped, 1 = Running
+cancel_token = threading.Event() # Cancellation flag for the worker threads
+
 # Configure logging
 logging.basicConfig(
     filename='CaaS.log',
@@ -58,29 +62,35 @@ hashtags = [
 ]
 
 # bad words
-badWords = [
+bad_words = [
     'elon musk',
 ]
 
 # bad hashtags
-badHashtags = [
+bad_hashtags = [
     'badhashtag',
 ]
 
 # bad accounts
-badAccounts = [
+bad_accounts = [
     'UnitedSpaceCats',
 ]
+
+# Post content (0 = no, 1 = yes)
+postContent = 0
+
+# Interval in seconds for the sleep period between posting content
+interval = 18243
 
 # Quart app
 app = Quart(__name__)
 connections = set()
 
 # Create Mastodon app and get user credentials
-def createSecrets():
+def create_secrets():
     # Create the secrets files if they don't exist
-    createFile('clientcred.secret')
-    createFile('usercred.secret')
+    create_file('clientcred.secret')
+    create_file('usercred.secret')
 
     # Create Mastodon app (client credentials)
     Mastodon.create_app(
@@ -103,15 +113,15 @@ def createSecrets():
     )
 
 # If secrets are not present, create them
-def checkForSecrets():
+def check_for_secrets():
     if os.path.exists('usercred.secret'):
         print("Secrets found.")
     else:
         print("Secrets not found.")
-        createSecrets()
+        create_secrets()
 
 # Create a file if it doesn't exist
-def createFile(file_name):
+def create_file(file_name):
     try:
         with open(file_name, 'a'):
             pass
@@ -159,7 +169,7 @@ class HashtagListener(StreamListener):
                     #     logging.info('....too many hashtags - skipped')
                     #     skipCounter += 1
                     # Check if there is a bad account
-                    for account in badAccounts:
+                    for account in bad_accounts:
                         if account == status.account.username:
                             logging.info('badaccount found - skipped')
                             skipCounter += 1
@@ -212,14 +222,64 @@ class HashtagListener(StreamListener):
     def handle_heartbeat(self):
         try:
             message = heartbeatIcon
-            #asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
+            #asyncio.run_coroutine_threadsafe(broadcastMessage(message), self.loop)
+        except Exception as errorcode:
+            logging.error("ERROR: " + str(errorcode))
+            return
+        return
+    
+    # Called when a notification arrives
+    def on_notification(self, notification):
+        try:
+            message = notification.type
+            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
+        except Exception as errorcode:
+            logging.error("ERROR: " + str(errorcode))
+            return
+        return
+    
+    # Called when a delete event arrives
+    def on_delete(self, status):
+        try:
+            message = "Deleted: " + status.id
+            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
+        except Exception as errorcode:
+            logging.error("ERROR: " + str(errorcode))
+            return
+        return
+    
+    # Called when a error event arrives
+    def on_error(self, error):
+        try:
+            message = "Error: " + error
+            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
+        except Exception as errorcode:
+            logging.error("ERROR: " + str(errorcode))
+            return
+        return
+    
+    # Called when a unknown event arrives
+    def on_unknown_event(self, unknown_event):
+        try:
+            message = "Unknown Event: " + unknown_event
+            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
+        except Exception as errorcode:
+            logging.error("ERROR: " + str(errorcode))
+            return
+        return
+    
+    # Called when a conversation event arrives
+    def on_conversation(self, conversation):
+        try:
+            message = "Conversation: " + conversation
+            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
         except Exception as errorcode:
             logging.error("ERROR: " + str(errorcode))
             return
         return
 
 # Content tooting
-async def tootContentArchive(mastodon, interval):
+async def toot_content(mastodon, interval):
 
     # Path where the media files are stored
     path = "content/images/"
@@ -272,6 +332,21 @@ async def tootContentArchive(mastodon, interval):
 
 # Thread worker
 async def worker(mastodon, postContentbool, interval, loop):
+    '''This function starts the worker thread that listens to the stream and posts content.
+    Args:
+        mastodon (Mastodon): The Mastodon instance to use.
+        postContentbool (int): Whether to post content or not.
+        interval (int): The interval in seconds between posting content.
+        loop (asyncio.AbstractEventLoop): The event loop to use.
+    
+    Returns:
+        None
+
+    ToDo: 
+            - Add cancellation token to stop the worker threads.
+            - Add a way to restart the worker threads.
+
+    '''
 
     # Setting up threads
     threads = [] # List of threads we will start
@@ -289,7 +364,7 @@ async def worker(mastodon, postContentbool, interval, loop):
 
     # Content tooting
     if postContentbool == 1:
-        await tootContentArchive(mastodon, interval)
+        await toot_content(mastodon, interval)
 
     # Hashtag listening
     # Create a listener for each hashtag
@@ -308,35 +383,35 @@ async def worker(mastodon, postContentbool, interval, loop):
         thread.join()
 
 # Get log file
-async def getLog():
+async def get_log():
     async with aiofiles.open('CaaS.log', 'r') as file:
         log = await file.read()
     return log
 
 # Clean log file
-async def cleanLog():
+async def clean_log():
     await broadcast_message("Cleaning log...")
     with open('CaaS.log', 'w') as file:
         file.write("")
     await broadcast_message("Cleaned log.")
 
 # Get settings
-async def getSettings():
-    async with aiofiles.open('components/settings.html', 'r') as file:
+async def get_settings():
+    ''' Placeholder for settings'''
+    async with aiofiles.open('components/settings.html', 'r', encoding='utf-8') as file:
         settings = await file.read()
     return settings
 
+# Get worker status
+async def get_worker_status():
+    ''' Placeholder for worker status'''
+    async with aiofiles.open('components/worker.html', 'r', encoding='utf-8') as file:
+        worker = await file.read()
+    return worker
+
 # Render Account Information
-async def AccountInfo():
-    html = f"<ul>"
-    html += f"<li>Username: {user.username}</li>"
-    html += f"<li>Display Name: {user.display_name}</li>"
-    html += f"<li>Followers: {user.followers_count}</li>"
-    html += f"<li>Following: {user.following_count}</li>"
-    html += f"<li>Statuses: {user.statuses_count}</li>"
-    html += f"<li>Created At: {user.created_at}</li>"
-    html += f"<li>URL: {user.url}</li>"
-    html += f"</ul>"
+async def get_account():
+    html = f'<div class="userAvatar"><img src="{user.avatar}" alt="{user.username}" /></div>'
     return html
 
 # Broadcast message
@@ -352,24 +427,28 @@ async def broadcast_message(message):
 async def index():
 
     # Get Account Information
-    accountInfo = await AccountInfo()
+    accountInfo = await get_account()
 
     # Get Log
-    log = await getLog()
+    log = await get_log()
 
     # Settings
-    settings = await getSettings()
+    settings = await get_settings()
+
+    # Gwt Worker Status
+    workerStatus = await get_worker_status()
 
     return await render_template('index.html',
         accountInfo=accountInfo,
         log=log,
-        settings=settings
+        settings=settings,
+        workerStatus=workerStatus
     )
 
 # Api route
 app.route("/api")
 async def json():
-    return {"hello": user.username}
+    return {"hello": "world"}
 
 # WebSocket route
 @app.websocket("/ws")
@@ -386,30 +465,26 @@ async def ws():
     finally:
         connections.remove(websocket._get_current_object())
 
+# Initialize the main function
 async def main():
-    # Interval in seconds for the sleep period between posting content
-    interval = 18243
-
     # Check for secrets
-    checkForSecrets()  # Ensure this function sets necessary secrets
+    check_for_secrets()  # Ensure this function sets necessary secrets
 
+    # Initialize Mastodon
     mastodon = Mastodon(access_token = 'usercred.secret')
 
     global user
     user = mastodon.me()
 
     # Who Am I
-    logging.info(mastodon.me().username)
+    logging.info(user.username)
 
-    # Settings
-    postContentbool = 0
-
-    # Start Worker
+    # Start thread worker
     try:
         # Get event loop and run the quart app
         loop = asyncio.get_event_loop()
         # Start the worker
-        await worker(mastodon, postContentbool, interval, loop)
+        await worker(mastodon, postContent, interval, loop)
         # Run the Quart app
         await app.run_task()
     except KeyboardInterrupt:

@@ -17,12 +17,6 @@
     </head>
     <body>
 
-    <div class="topPanel">
-        <div class="accountInfo">
-            {{ accountInfo | safe }}
-        </div>
-    </div>
-
     <div class="leftPanel">
         <!-- logo  -->
         <div class="logo">
@@ -33,6 +27,13 @@
             <a href="/" aria-label="Caas">CaaS</a>
         </nav>
 
+        <div class="threadWorker">
+            {{ workerStatus | safe }}
+        </div>
+
+        <div class="accountInformation">
+            {{ accountInfo | safe }}
+        </div>
     </div>
 
     <div class="rightPanel">
