@@ -9,6 +9,12 @@ input[type="text" i], input[type="password" i], input[type="email" i] {
     width: -webkit-fill-available;
 }
 
+input[type="text" i]:focus, input[type="password" i]:focus, input[type="email" i]:focus {
+    background-color: var(--m);
+    color: var(--00);
+    border: 1px var(--m) solid;
+}
+
 input[type="range" i] {
     -webkit-appearance: none;
     appearance: none;
