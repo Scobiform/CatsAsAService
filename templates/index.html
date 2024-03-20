@@ -5,7 +5,8 @@
         <meta http-equiv="Pragma" content="no-cache">
         <meta http-equiv="Expires" content="0">
         <meta charset="UTF-8">
-        <link rel="stylesheet" type="text/css" href="static/style.css">  
+        <link rel="stylesheet" type="text/css" href="static/css/style.css">
+        <link rel="stylesheet" type="text/css" href="static/css/ui.css">  
         <link rel="icon" type="image/svg+xml" href="static/Caas.svg">
         <title></title>
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,12 +16,6 @@
         <meta name="robots" content="index, follow">
     </head>
     <body>
-
-    <div class="topPanel">
-        <div class="accountInfo">
-            {{ accountInfo | safe }}
-        </div>
-    </div>
 
     <div class="leftPanel">
         <!-- logo  -->
@@ -32,13 +27,19 @@
             <a href="/" aria-label="Caas">CaaS</a>
         </nav>
 
+        <div class="threadWorker">
+            {{ workerStatus | safe }}
+        </div>
+
+        <div class="accountInformation">
+            {{ accountInfo | safe }}
+        </div>
     </div>
 
     <div class="rightPanel">
 
         <div class="tab">
             <button class="tablinks" onclick="openTab(event, 'Messages')">Messages</button>
-            <button class="tablinks" onclick="openTab(event, 'Log')">Log</button>
             <button class="tablinks" onclick="openTab(event, 'Settings')">Settings</button>
         </div>
 
@@ -47,18 +48,9 @@
             <div id="messages"></div>
         </div>
 
-        <div id="Log" class="tabcontent">
-            <div class="logInformation">
-                {{ log | safe }}
-            </div>
-        </div>
-
         <div id="Settings" class="tabcontent">
             <div class="config">
-                <!-- Include settings.html -->
                 {{ settings | safe }}
-                <!-- Include config-->
-                <!-- {{ config | safe }}-->
             </div>
         </div>
     </div>

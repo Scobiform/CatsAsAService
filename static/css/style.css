@@ -5,19 +5,39 @@
   --m: #008CBA;
   --y: #f44336;
   --k: #f4f4f4;;
+  --00: #000000;
+  --ff: #ffffff;
+  /*  */
+  --maxHeight: 91vh;
 }
 
-.topPanel {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  position: fixed;
-  width: 100%;
-  top: 0;
-  z-index: 1;
-  pointer-events: none;
+/* Global styles */
+
+ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  background-color: var(--k);
 }
+
+li {
+  float: left;
+}
+
+li a {
+  display: block;
+  color: var(--m);
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+}
+
+li a:hover {
+  background-color: var(--m);
+}
+
+/* Main styles */
 
 .leftPanel {
   position: fixed;
@@ -37,6 +57,13 @@
   width: 93rem;
 }
 
+.footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px;
+}
+
 .logo {
   width: 7rem;
   height: 7rem;
@@ -48,55 +75,11 @@ nav {
   text-align: center;
 }
 
-.accountInfo {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-  position: fixed;
-  right: 0;
-  top: 0;
-  font-size: small;
-}
-
-#messages {
-  height: 84vh;
-  overflow-x: hidden;
-  overflow-y: scroll;
-  scrollbar-color: var(--c) var(--k);
-}
-
-#messages img {
-  width: 42vw;
-  height: auto;
-}
-
-.logInformation {
-  height: 84vh;
-  overflow-x: hidden;
-  padding: 20px;
-}
-
-.config {
-  height: 84vh;
-  overflow-x: hidden;
-  display: inline-grid;
-  width: min-content;
-}
-
-.footer {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 20px;
-}
-
-
-* Style the tab */
+/* Content tabs */
 .tab {
   overflow: hidden;
-  border: 1px solid #ccc;
-  background-color: #f1f1f1;
+  border: 1px solid var(--k);
+  background-color: var(--k)
 }
 
 /* Style the buttons inside the tab */
@@ -113,19 +96,20 @@ nav {
 
 /* Change background color of buttons on hover */
 .tab button:hover {
-  background-color: #ddd;
+  background-color: var(--k);
 }
 
 /* Create an active/current tablink class */
 .tab button.active {
-  background-color: #ccc;
+  background-color: var(--m);
+  color: var(--k);
 }
 
 /* Style the tab content */
 .tabcontent {
   display: none;
   padding: 6px 12px;
-  border: 1px solid #ccc;
+  border: 1px solid var(--k);
   border-top: none;
   position: fixed;
   height: 100vh;

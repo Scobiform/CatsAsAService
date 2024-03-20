@@ -1,0 +1,111 @@
+/* scobiform.com 2024 */
+
+input[type="text" i], input[type="password" i], input[type="email" i] {
+    appearance: auto;
+    background-color: var(--k);
+    color: var(--00);
+    border: 1px var(--k) solid;
+    padding: 0.21rem;
+    width: -webkit-fill-available;
+}
+
+input[type="text" i]:focus, input[type="password" i]:focus, input[type="email" i]:focus {
+    background-color: var(--m);
+    color: var(--00);
+    border: 1px var(--m) solid;
+}
+
+input[type="range" i] {
+    -webkit-appearance: none;
+    appearance: none;
+    background-color: white;
+    width: -webkit-fill-available;
+}
+
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 25px; 
+    height: 25px;
+    background: var(--m);
+    cursor: pointer; 
+}
+
+input[type="submit" i], input[type="reset" i] {
+    appearance: auto;
+    user-select: none;
+    text-align: center;
+    background-color: var(--m);
+    color: var(--k);
+    white-space: pre;
+    padding-block: 0.21rem;
+    border: none;
+    font-size: smaller;
+}
+
+/* Thread worker */
+.threadWorker {
+    height: fit-content;
+    overflow-x: hidden;
+    display: inline-grid;
+    width: 100%;
+  }
+
+.threadWorker button {
+    /* background-color: var(--m); */
+    color: var(--00);
+    border: 1px var(--k) solid;
+    width: inherit;
+    margin: 0 auto;
+}
+
+.threadWorker button:hover {
+    background-color: var(--k);
+    color: var(--m);
+    border: 1px var(--m) solid;
+    cursor: pointer;
+}
+
+/* Account information */
+.accountInformation {
+    width: inherit;
+    bottom: 0;
+    position: absolute;
+}
+
+.accountInformation img {
+    width: -webkit-fill-available;
+    height: auto;
+}
+
+/* Bot messages */
+#messages {
+    height: var(--maxHeight);
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-color: var(--c) var(--k);
+    scrollbar-width: thin;
+  }
+  
+  #messages img {
+    width: inherit;
+    width: -webkit-fill-available;
+    height: auto;
+  }
+  
+  #message video {
+    width: inherit;
+    width: -webkit-fill-available;
+    height: auto;
+  }
+
+
+/* Configuration */
+.config {
+    height: var(--maxHeight);
+    overflow-x: hidden;
+    overflow-y: scroll;
+    scrollbar-color: var(--c) var(--k);
+    scrollbar-width: thin;
+}
+
