@@ -31,6 +31,7 @@ input[type=range]::-webkit-slider-thumb {
     cursor: pointer; 
 }
 
+
 input[type="submit" i], input[type="reset" i] {
     appearance: auto;
     user-select: none;
@@ -41,6 +42,15 @@ input[type="submit" i], input[type="reset" i] {
     padding-block: 0.21rem;
     border: none;
     font-size: smaller;
+    width: -webkit-fill-available;
+    height: 42px;
+}
+
+input[type="submit" i]:hover, input[type="reset" i]:hover {
+    background-color: var(--k);
+    color: var(--m);
+    border: 1px var(--m) solid;
+    cursor: pointer;
 }
 
 /* Thread worker */
@@ -52,9 +62,9 @@ input[type="submit" i], input[type="reset" i] {
   }
 
 .threadWorker button {
-    /* background-color: var(--m); */
+    background-color: var(--ff);
     color: var(--00);
-    border: 1px var(--k) solid;
+    border: none;
     width: inherit;
     margin: 0 auto;
 }
@@ -62,7 +72,7 @@ input[type="submit" i], input[type="reset" i] {
 .threadWorker button:hover {
     background-color: var(--k);
     color: var(--m);
-    border: 1px var(--m) solid;
+    border: none;
     cursor: pointer;
 }
 
@@ -109,5 +119,48 @@ input[type="submit" i], input[type="reset" i] {
     overflow-y: scroll;
     scrollbar-color: var(--c) var(--k);
     scrollbar-width: thin;
+    padding: 0.42rem;
 }
+
+/* Content tabs */
+.tab {
+    overflow: hidden;
+    border: 1px solid var(--k);
+    background-color: var(--ff)
+  }
+  
+  /* Style the buttons inside the tab */
+  .tab button {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 14px 16px;
+    transition: 0.3s;
+    font-size: 17px;
+  }
+  
+  /* Change background color of buttons on hover */
+  .tab button:hover {
+    background-color: var(--k);
+  }
+  
+  /* Create an active/current tablink class */
+  .tab button.active {
+    background-color: var(--m);
+    color: var(--k);
+  }
+  
+  /* Style the tab content */
+  .tabcontent {
+    display: none;
+    padding: 6px 12px;
+    border: 1px solid var(--k);
+    border-top: none;
+    position: fixed;
+    height: 100vh;
+    width: 21rem;
+    top: 3rem;
+  }
 
