@@ -38,29 +38,3 @@
 // ------------------------------------------------
 // Form
 // Add ui switch to the post content checkbox
-document.addEventListener('DOMContentLoaded', function() {
-  const checkbox = document.getElementById('postContent');
-  const hiddenInput = document.getElementById('postContentHidden');
-
-  // Initial check to set the hidden input value based on the checkbox's state
-  hiddenInput.value = checkbox.checked ? '1' : '0';
-
-  checkbox.addEventListener('change', function() {
-      // When the checkbox state changes, update the hidden input accordingly
-      hiddenInput.value = this.checked ? '1' : '0';
-  });
-});
-
-function addInput(arrayName) {
-  const newInput = document.createElement('input');
-  newInput.type = 'text';
-  newInput.name = arrayName+'[]';
-  newInput.setAttribute('aria-label', arrayName);
-  
-  const lineBreak = document.createElement('br');
-
-  const container = document.getElementById(arrayName+'Container');
-  
-  container.appendChild(newInput);
-  container.appendChild(lineBreak);
-}

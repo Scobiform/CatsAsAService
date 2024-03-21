@@ -1,4 +1,4 @@
-<button id="toggleButton" onclick="toggleFunction()">▶️</button>
+<button id="toggleButton" onclick="toggleFunction()">{% if configuration.stream_running %}▶️{% else %}⏹️{% endif %}</button>
 
 <div id="stream_running">
   {% if configuration.stream_running %}
@@ -34,4 +34,4 @@
       }
     }
   }
-  </script>
+</script>

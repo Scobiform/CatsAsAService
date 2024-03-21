@@ -1,0 +1,21 @@
+{
+    "en": {
+      "greeting": "Hello",
+      "legend": {
+        "authentication": "You need to fill in your Mastodon credentials once to create your secret files."
+      }
+    },
+    "de": {
+      "greeting": "Hallo",
+      "legend": {
+        "authentication": "Du musst deine Mastodon login Daten einmal eingeben, um deine geheimen Dateien zu erstellen."
+      }
+    },
+    "ru": {
+      "greeting": "Привет",
+      "legend": {
+        "authentication": "Для создания секретных файлов необходимо один раз ввести учетные данные Mastodon."
+      }
+    }
+}
+  

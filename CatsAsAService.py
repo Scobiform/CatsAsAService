@@ -30,6 +30,9 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # Configuration
 config = {}
 
+# Localization
+localization = {}
+
 # Setting up threads
 tasks = [] # List of threads we will start
 
@@ -50,6 +53,24 @@ def load_config():
 
 # Load the configuration
 config = load_config()
+
+# Load the localization from the localization.json file
+def load_localization():
+    try:
+        with open('localization.json', 'r', encoding='utf-8') as localization_file:
+            localization = json.load(localization_file)
+            print("Localization loaded successfully.")
+            return localization
+    except FileNotFoundError:
+        print("localization.json file not found.")
+    except json.JSONDecodeError as e:
+        print(f"An error occurred while decoding localization.json: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
+    return {}
+
+# Load the localization
+localization = load_localization()
 
 # Mastodon configuration
 app_name = config['app_name']
@@ -202,6 +223,14 @@ async def toot_content(mastodon, interval):
 
 # Hashtag Listener
 class HashtagListener(StreamListener):
+    '''A listener for streaming hashtag updates.
+    Args:
+        mastodon_instance (Mastodon): The Mastodon instance to use.
+        loop (asyncio.AbstractEventLoop): The event loop to use.
+        
+    #ToDo: Keep track of the last status ID to avoid reboosting the same status
+
+    '''
     # Constructor
     def __init__(self, mastodon_instance, loop):
         self.mastodon = mastodon_instance
@@ -297,6 +326,16 @@ class HashtagListener(StreamListener):
 
 # Streaming Manager
 class StreamingManager:
+    """A manager for starting and stopping streaming tasks for hashtags.
+
+    Args:
+        mastodon (Mastodon): The Mastodon instance to use.
+        loop (asyncio.AbstractEventLoop): The event loop to use.
+        tasks (list): The list of streaming tasks to manage.
+        hashtags (list): The list of hashtags to stream.
+    
+    """
+
     def __init__(self, mastodon, loop):
         self.mastodon = mastodon
         self.loop = loop
@@ -337,6 +376,7 @@ class StreamingManager:
     async def start(self):
         """Start all streaming tasks."""
         logging.info('Starting streaming...')
+        await broadcast_message("Starting streaming. Give it some time to start all listeners...")
         for hashtag in self.hashtags:
             task = asyncio.create_task(self.start_stream(hashtag, 7, 42))
             self.tasks.append(task)
@@ -344,6 +384,7 @@ class StreamingManager:
 
     async def stop(self):
         """Stop all streaming tasks."""
+        await broadcast_message("Stopping all streaming tasks...")
         for task in self.tasks:
             task.cancel()
         # Wait for all tasks to be cancelled, ignoring cancellation exceptions
@@ -355,7 +396,7 @@ async def get_settings():
     async with aiofiles.open('components/settings.html', 'r', encoding='utf-8') as file:
         settings_template = await file.read()
     config = load_config()
-    return await render_template_string(settings_template, configuration=config)
+    return await render_template_string(settings_template, configuration=config, localization=localization)
 
 # Get worker status
 async def get_worker_status():
@@ -404,7 +445,7 @@ async def index():
 async def submit_settings():
     '''Submit the settings form and update the configuration.
     
-    ToDo: Add auth to route
+    #ToDo: Add auth to route
     '''
     # Use await with request.form to get the form data asynchronously
     form_data = await request.form
@@ -437,7 +478,7 @@ async def submit_settings():
 async def start_streaming():
     '''Start the streaming manager.
     
-    ToDo: Add auth to route
+    #ToDo: Add auth to route
     '''
     if streaming_manager:
         await streaming_manager.start()
@@ -449,7 +490,7 @@ async def start_streaming():
 async def stop_streaming():
     '''Stop the streaming manager.
 
-    ToDo: Add auth to route
+    #ToDo: Add auth to route
     '''
     if streaming_manager:
         await streaming_manager.stop()

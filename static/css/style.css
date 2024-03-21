@@ -26,6 +26,32 @@ body {
   background-color: var(--ff);
 }
 
+h1 {
+  color: var(--c);
+}
+
+h2 {
+  color: var(--m);
+}
+
+h3 {
+  color: var(--m);
+}
+
+h4 {
+  color: var(--k);
+}
+
+h5 {
+  color: var(--00);
+  background-color: var(--ff);
+}
+
+h6 {
+  color: var(--ff);
+  background-color: var(--00);
+}
+
 
 ul {
   list-style-type: none;

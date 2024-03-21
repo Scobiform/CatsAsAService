@@ -4,6 +4,22 @@ button {
     font-family: inherit;
 }
 
+label {
+    font-family: inherit;
+    display: flex;
+}
+
+legend {
+    font-family: inherit;
+}
+
+hr {
+    border: 0;
+    height: 0;
+    background: var(--k);
+    margin: 0.21rem;
+}
+
 input[type="text" i], input[type="password" i], input[type="email" i] {
     appearance: auto;
     background-color: var(--k);
@@ -232,8 +248,7 @@ input:checked + .slider:before {
 /* Adding new input elements */
 .add-icon {
   cursor: pointer;
-  font-size: 24px;
+  font-size: smaller;
   margin-left: 8px;
-  color: green;
   float: right;
 }

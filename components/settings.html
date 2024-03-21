@@ -6,6 +6,7 @@
     <input type="text" id="instance_url" name="instance_url" value="{{ configuration.instance_url }}">
 
     <h2>Authentication</h2>
+    <legend>{{ localization.ru.legend.authentication }}</legend>
     <label for="email">Email:</label>
     <input type="text" id="email" name="email" value="{{ configuration.email }}">
 
@@ -22,7 +23,9 @@
             <input type="text" name="Hashtags[]" value="{{ hashtag }}" aria-label="Hashtags">
         {% endfor %}
     </div>
-    <span class="add-icon" onclick="addInput('Hashtags')">➕</span>
+    <div class="add-icon" onclick="addInput('Hashtags')">➕</div>
+
+    <hr>
 
     <h3>Bad words:</h3>
     <div id="bad_wordsContainer">
@@ -30,7 +33,9 @@
             <input type="text" name="bad_words[]" value="{{ bad_word }}" aria-label="Bad words">
         {% endfor %}
     </div>
-    <span class="add-icon" onclick="addInput('bad_words')">➕</span>
+    <div class="add-icon" onclick="addInput('bad_words')">➕</div>
+
+    <hr>
 
     <h3>Bad hashtags:</h3>
     <div id="bad_hashtagsContainer">
@@ -38,7 +43,9 @@
             <input type="text" name="bad_hashtags[]" value="{{ bad_hashtag }}" aria-label="Bad hashtags">
         {% endfor %}
     </div>
-    <span class="add-icon" onclick="addInput('bad_hashtags')">➕</span>
+    <div class="add-icon" onclick="addInput('bad_hashtags')">➕</div>
+
+    <hr>
 
     <h3>Bad accounts:</h3>
         <div id="bad_accountsContainer">
@@ -46,27 +53,36 @@
             <input type="text" name="bad_accounts[]" value="{{ bad_account }}" aria-label="Bad accounts">
         {% endfor %}
         </div>
-    <span class="add-icon" onclick="addInput('bad_accounts')">➕</span>
+    <div class="add-icon" onclick="addInput('bad_accounts')">➕</div>
+
+    <hr>
 
     <h3>Toot content</h3>
+    <legend>Switch on content tooting</legend>
     <label class="switch" for="postContent">Post Content:
         <input type="hidden" id="postContentHidden" name="postContent" value="0">
         <input type="checkbox" id="postContent" name="postContent" value="1" aria-label="Post Content" 
                 {{ "checked" if configuration.postContent == '1' else "" }}
         >
-        <span class="slider"></span>
+        <div class="slider"></div>
     </label>
 
     <!-- Slider range for interval in seconds from 0 to 1 day -->
     <label for="interval">Interval:</label>
     <input type="range" id="interval" name="interval" min="420" max="86400" step="1" value="{{ configuration.interval }}">
+    <span id="intervalValue">{{ configuration.interval }} seconds</span>
+
+    <br>
+    <br>
 
     <label for="tootPattern">Toot Pattern:</label>
     <input type="textarea" id="tootPattern" name="tootPattern" value="{{ configuration.tootPattern }}" aria-label="Toot Pattern">
 
+    <br>
+    <br>
+
     <label for="tootAltTextPattern">AltText Pattern:</label>
     <input type="textarea" id="tootAltTextPattern" name="tootAltTextPattern" value="{{ configuration.tootAltTextPattern }}" aria-label="tootAltTextPattern">
-
 
     <br>
     <br>
@@ -76,3 +92,44 @@
     <br>
     <br>
 </form>
+
+
+<script>
+    // Function to update the hidden input value based on the checkbox state
+    document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('postContent');
+    const hiddenInput = document.getElementById('postContentHidden');
+
+    // Initial check to set the hidden input value based on the checkbox's state
+    hiddenInput.value = checkbox.checked ? '1' : '0';
+
+    checkbox.addEventListener('change', function() {
+        // When the checkbox state changes, update the hidden input accordingly
+        hiddenInput.value = this.checked ? '1' : '0';
+    });
+    });
+
+    // Function to add input fields to the form
+    function addInput(arrayName) {
+    const newInput = document.createElement('input');
+    newInput.type = 'text';
+    newInput.name = arrayName+'[]';
+    newInput.setAttribute('aria-label', arrayName);
+    
+    const lineBreak = document.createElement('br');
+
+    const container = document.getElementById(arrayName+'Container');
+    
+    container.appendChild(newInput);
+    container.appendChild(lineBreak);
+    }
+
+
+    // Function to update the slider value
+    const slider = document.getElementById('interval');
+    const output = document.getElementById('intervalValue');
+
+    slider.addEventListener('input', function() {
+        output.textContent = this.value + ' seconds'; 
+    });
+</script>
