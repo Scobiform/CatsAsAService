@@ -34,3 +34,12 @@
     document.getElementById(tabName).style.display = "block";
     evt.currentTarget.className += " active";
   }
+
+// Form
+document.getElementById('postContent').addEventListener('change', function() {
+  if (this.checked) {
+    this.value = '1';
+  } else {
+    this.value = '0';
+  }
+});

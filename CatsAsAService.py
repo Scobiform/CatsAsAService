@@ -199,10 +199,12 @@ class HashtagListener(StreamListener):
                             for media in status.media_attachments:
                                 if media.type == "image":
                                     message = f"<a href='{status.url}' target='_blank'><img src='{media.url}' alt='{media.description}' /></a>"
+                                    asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
+                                    logging.info('....image boosted')
                                 if media.type == "video":
                                     message = f"<video src='{media.url}' controls />"
-                            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
-                            logging.info('....boosted')
+                                    asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
+                                    logging.info('....video boosted')
             # Set skipCounter to 0
             skipCounter = 0
         except MastodonInternalServerError as errorcode:
@@ -234,6 +236,17 @@ class HashtagListener(StreamListener):
 
 # Content tooting
 async def toot_content(mastodon, interval):
+    '''This function posts content to Mastodon.
+    Args:
+        mastodon (Mastodon): The Mastodon instance to use.
+        interval (int): The interval in seconds between posting content.
+        
+    Returns:
+        None
+
+    ToDo:
+        - Move text patterns to settings.json
+    '''
 
     # Path where the media files are stored
     path = "content/images/"
@@ -249,7 +262,6 @@ async def toot_content(mastodon, interval):
 
     # Read the last posted number from the file
     last_posted = config['lastPosetd']
-    print("Current startNumber: " + str(last_posted))
     
     # Get the list of all filenames in the directory and sort them
     all_files = sorted(os.listdir(path), key=lambda x: int(x.split('.')[0]))
@@ -270,11 +282,10 @@ async def toot_content(mastodon, interval):
             
             # Construct the toot text and post it
             toot_text = "#CatsOfMastodon\n" + alt_text + "\n\n"
-            mastodon.status_post(toot_text, media_ids=metadata["id"], visibility="public")
+            #mastodon.status_post(toot_text, media_ids=metadata["id"], visibility="public")
             
             # Update the last posted number
-            with open("content/lastPosted.txt", 'w') as file:
-                file.write(str(file_num))
+            last_posted = file_num
 
             print(f"Posted: {file_num}")
             time.sleep(interval)  # Respect the rate limits
@@ -284,7 +295,7 @@ async def toot_content(mastodon, interval):
 
 # Thread worker
 async def worker(mastodon, postContentbool, interval, loop):
-    '''This function starts the worker thread that listens to the stream and posts content.
+    '''This function starts the taska that will listens to the stream
     Args:
         mastodon (Mastodon): The Mastodon instance to use.
         postContentbool (int): Whether to post content or not.
@@ -295,8 +306,9 @@ async def worker(mastodon, postContentbool, interval, loop):
         None
 
     ToDo: 
-            - Add cancellation token to stop the worker threads.
-            - Add a way to restart the worker threads.
+            - Add a way to stop the taska
+            - Add a way to restart the tasks
+
 
     '''
 

@@ -36,12 +36,22 @@
         <input type="text" name="bad_accounts[]" value="{{ bad_account }}" aria-label="Bad accounts">
     {% endfor %}
 
-    <label>Post Content:</label>
-    <input type="text" id="postContent" name="postContent" value="{{ configuration.postContent}}" aria-label="Post Content">
+    <h3>Toot content</h3>
+    <label class="switch" for="postContent">Post Content:
+        <input type="checkbox" id="postContent" name="postContent" value="{{configuration.postContent}}" aria-label="Post Content">
+        <span class="slider"></span>
+    </label>
 
     <!-- Slider range for interval in seconds from 0 to 1 day -->
     <label for="interval">Interval:</label>
-    <input type="range" id="interval" name="interval" min="0" max="86400" step="1" value="{{ configuration.interval}}">
+    <input type="range" id="interval" name="interval" min="0" max="86400" step="1" value="{{ configuration.interval }}">
+
+    <label for="tootPattern">Toot Pattern:</label>
+    <input type="textarea" id="tootPattern" name="tootPattern" value="{{ configuration.tootPattern }}" aria-label="Toot Pattern">
+
+    <label for="tootAltTextPattern">AltText Pattern:</label>
+    <input type="textarea" id="tootAltTextPattern" name="tootAltTextPattern" value="{{ configuration.tootAltTextPattern }}" aria-label="tootAltTextPattern">
+
 
     <br>
     <br>

@@ -63,8 +63,10 @@
     "bad_accounts": [
         "UnitedSpaceCats"
     ],
-    "postContent": "0",
+    "postContent": "1",
     "lastPosetd": "76941",
     "interval": "18243",
-    "heartbeatIcon": " "
+    "heartbeatIcon": " ",
+    "tootPattern": "#CatsOfMastodon",
+    "tootAltTextPattern": "#Cat"
 }
