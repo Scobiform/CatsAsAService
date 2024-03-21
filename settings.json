@@ -9,12 +9,62 @@
         "format": "%(asctime)s - %(levelname)s - %(message)s",
         "level": "INFO"
     },
-    "hashtags": "['CatsOfMastodon', 'Caturday', 'CatsOfTheFediverse', 'FediCats', 'Cats', 'CatContent', 'BlackCatsMatter', '\u30b5\u30a4\u30d9\u30ea\u30a2\u30f3', '\u732b', '\u041c\u0410\u041d\u0423\u041b']",
-    "bad_words": "['elon musk']",
-    "bad_hashtags": "['badhashtag']",
-    "bad_accounts": "['UnitedSpaceCats']",
+    "hashtags": [
+        "CatsOfMastodon",
+        "Caturday",
+        "CatsOfTheFediverse",
+        "FediCats",
+        "Cats",
+        "CatContent",
+        "BlackCatsMatter",
+        "\u30b5\u30a4\u30d9\u30ea\u30a2\u30f3",
+        "\u732b",
+        "\u041c\u0410\u041d\u0423\u041b"
+    ],
+    "bad_words": [
+        "shop",
+        "buy",
+        "nft",
+        "coin",
+        "escort",
+        "xxx",
+        "Billionaire",
+        "product",
+        "sale",
+        "discount",
+        "download",
+        "marketing",
+        "seo",
+        "paypal",
+        "onlyfans",
+        "donate",
+        "paypal",
+        "cashapp",
+        "instagram",
+        "facebook",
+        "twitter",
+        "tiktok"
+    ],
+    "bad_hashtags": [
+        "nft",
+        "coin",
+        "xxx",
+        "ai",
+        "marketing",
+        "seo",
+        "shop",
+        "buy",
+        "sale",
+        "discount",
+        "download",
+        "product",
+        "AI"
+    ],
+    "bad_accounts": [
+        "UnitedSpaceCats"
+    ],
     "postContent": "0",
     "lastPosetd": "76941",
     "interval": "18243",
-    "heartbeatIcon": "\ud83d\udc31"
+    "heartbeatIcon": " "
 }

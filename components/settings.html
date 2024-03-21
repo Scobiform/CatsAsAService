@@ -3,30 +3,38 @@
     <input type="text" id="app_name" name="app_name" value="{{ configuration.app_name}}">
     
     <label for="instance_url">Instance URL:</label>
-    <input type="text" id="instance_url" name="instance_url" value="{{ configuration.instance_url}}">
+    <input type="text" id="instance_url" name="instance_url" value="{{ configuration.instance_url }}">
 
     <h2>Authentication</h2>
     <label for="email">Email:</label>
-    <input type="text" id="email" name="email" value="{{ configuration.email}}">
+    <input type="text" id="email" name="email" value="{{ configuration.email }}">
 
     <label for="password">Password:</label>
-    <input type="password" id="password" name="password" value="{{ configuration.password}}">
+    <input type="password" id="password" name="password" current-password="{{ configuration.password }}" value="{{ configuration.password}}">
 
     <h2>Bot settings</h2>
     <label for="heartbeatIcon">Heartbeat Icon:</label>
-    <input type="text" id="heartbeatIcon" name="heartbeatIcon" aria-label="Heartbeat Icon" value="{{ configuration.heartbeatIcon}}">
+    <input type="text" id="heartbeatIcon" name="heartbeatIcon" aria-label="Heartbeat Icon" value="{{ configuration.heartbeatIcon }}">
 
-    <label for="Hashtags">Hashtags:</label>
-    <input type="text" id="Hashtags" name="hashtags" value="{{ configuration.hashtags}}">
+    <label for="Hashtags[]">Hashtags:</label>
+    {% for hashtag in configuration.hashtags %}
+        <input type="text" name="Hashtags[]" value="{{ hashtag }}" aria-label="Hashtags">
+    {% endfor %}
 
-    <label for="bad_words">Bad words:</label>
-    <input type="text" id="bad_words" name="bad_words" value="{{ configuration.bad_words}}">
+    <label for="bad_words[]">Bad words:</label>
+    {% for bad_word in configuration.bad_words %}
+        <input type="text" name="bad_words[]" value="{{ bad_word }}" aria-label="Bad words">
+    {% endfor %}
 
-    <label for="bad_hashtags">Bad hashtags</label>
-    <input type="text" id="bad_hashtags" name="bad_hashtags" value="{{ configuration.bad_hashtags}}">
+    <label for="bad_hashtags[]">Bad hashtags:</label>
+    {% for bad_hashtag in configuration.bad_hashtags %}
+        <input type="text" name="bad_hashtags[]" value="{{ bad_hashtag }}" aria-label="Bad hashtags">
+    {% endfor %}
 
-    <label for="bad_accounts">Bad accounts:</label>
-    <input type="text" id="bad_accounts" name="bad_accounts" value="{{ configuration.bad_accounts}}">
+    <label for="bad_accounts[]">Bad accounts:</label>
+    {% for bad_account in configuration.bad_accounts %}
+        <input type="text" name="bad_accounts[]" value="{{ bad_account }}" aria-label="Bad accounts">
+    {% endfor %}
 
     <label for=""postContent">Post Content:</label>
     <input type="text" id="postContent" name="postContent" value="{{ configuration.postContent}}" aria-label="Post Content">

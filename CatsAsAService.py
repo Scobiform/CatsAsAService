@@ -30,13 +30,15 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # Configuration
 config = {}
 
+# Setting up threads
+tasks = [] # List of threads we will start
+
 # Load the configuration from the settings.json file
 def load_config():
     try:
         with open('settings.json', 'r', encoding='utf-8') as config_file:
             config = json.load(config_file)
             print("Configuration loaded successfully.")
-            print(config)
             return config
     except FileNotFoundError:
         print("settings.json file not found.")
@@ -147,14 +149,6 @@ class HashtagListener(StreamListener):
 
     # Called when a new status arrives
     def on_update(self, status):
-
-        # Broadcast status
-        #asyncio.run_coroutine_threadsafe(broadcast_message(status.content), self.loop)
-
-        # Log status
-        logging.info('New status arrived')
-        logging.info('....' + status.account.username)
-
         # Skip counter - if it's 0, the status will be boosted
         skipCounter = 0  
         
@@ -162,6 +156,10 @@ class HashtagListener(StreamListener):
             if status.account.username == self.mastodon.me().username:
                 logging.info('....skipped')
             if status.account.username != self.mastodon.me().username:
+                # Check if the account is a bot
+                if status.account.bot == True:
+                    logging.info('....bot - skipped')
+                    skipCounter += 1
                 if status.account.bot == False:
                     # Check if there is media
                     if len(status.media_attachments) == 0:
@@ -183,16 +181,16 @@ class HashtagListener(StreamListener):
                             logging.info('badaccount found - skipped')
                             skipCounter += 1
                     # Check if there is a bad word
-                    # for word in badWords:
-                    #     if word in status.content:
-                    #         logging.info('badword found - skipped')
-                    #         skipCounter += 1
-                    # # Check if there is a bad hashtag
-                    # for hashtag in badHashtags:
-                    #     for tag in status.tags:
-                    #         if hashtag == tag['name']:
-                    #             logging.info('badhashtag found - skipped')
-                    #             skipCounter += 1
+                    for word in bad_words:
+                         if word in status.content:
+                             logging.info('badword found - skipped')
+                             skipCounter += 1
+                    # Check if there is a bad hashtag
+                    for hashtag in bad_hashtags:
+                         for tag in status.tags:
+                             if hashtag == tag['name']:
+                                 logging.info('badhashtag found - skipped')
+                                 skipCounter += 1
                     # Only boost if skipCounter is 0
                     if skipCounter == 0:
                         if str(status.in_reply_to_account_id) == 'None':
@@ -205,8 +203,6 @@ class HashtagListener(StreamListener):
                                     message = f"<video src='{media.url}' controls />"
                             asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
                             logging.info('....boosted')
-                else:
-                    asyncio.run_coroutine_threadsafe(broadcast_message('Bot...'), self.loop)
             # Set skipCounter to 0
             skipCounter = 0
         except MastodonInternalServerError as errorcode:
@@ -235,56 +231,6 @@ class HashtagListener(StreamListener):
             logging.error("ERROR: " + str(errorcode))
             return
         return
-    
-    # Called when a notification arrives
-    def on_notification(self, notification):
-        try:
-            message = notification.type
-            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
-        except Exception as errorcode:
-            logging.error("ERROR: " + str(errorcode))
-            return
-        return
-    
-    # Called when a delete event arrives
-    def on_delete(self, status):
-        try:
-            message = "Deleted: " + status.id
-            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
-        except Exception as errorcode:
-            logging.error("ERROR: " + str(errorcode))
-            return
-        return
-    
-    # Called when a error event arrives
-    def on_error(self, error):
-        try:
-            message = "Error: " + error
-            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
-        except Exception as errorcode:
-            logging.error("ERROR: " + str(errorcode))
-            return
-        return
-    
-    # Called when a unknown event arrives
-    def on_unknown_event(self, unknown_event):
-        try:
-            message = "Unknown Event: " + unknown_event
-            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
-        except Exception as errorcode:
-            logging.error("ERROR: " + str(errorcode))
-            return
-        return
-    
-    # Called when a conversation event arrives
-    def on_conversation(self, conversation):
-        try:
-            message = "Conversation: " + conversation
-            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
-        except Exception as errorcode:
-            logging.error("ERROR: " + str(errorcode))
-            return
-        return
 
 # Content tooting
 async def toot_content(mastodon, interval):
@@ -302,9 +248,7 @@ async def toot_content(mastodon, interval):
             file.write("0")
 
     # Read the last posted number from the file
-    with open("content/lastPosted.txt", 'r') as file:
-        last_posted_str = file.readline().strip()
-        last_posted = int(last_posted_str) if last_posted_str.isdigit() else 0
+    last_posted = config['lastPosetd']
     print("Current startNumber: " + str(last_posted))
     
     # Get the list of all filenames in the directory and sort them
@@ -356,19 +300,8 @@ async def worker(mastodon, postContentbool, interval, loop):
 
     '''
 
-    # Setting up threads
-    threads = [] # List of threads we will start
-
     # Start the worker
-    logging.info('Starting thread worker...')
-
-    # Check if the stream is healthy
-    try:
-        healthy = mastodon.stream_healthy()
-        logging.info(f"Stream healthy: {healthy}")
-    except Exception as e:
-        logging.error(f"Error checking stream health: {e}")
-        return
+    logging.info('Starting streaming...')
 
     # Content tooting
     if postContentbool == 1:
@@ -377,23 +310,24 @@ async def worker(mastodon, postContentbool, interval, loop):
     # Hashtag listening
     # Create a listener for each hashtag
     # The listener will be called when a new status arrives
-    for hashtag in hashtags:
-        listener = HashtagListener(mastodon, loop)
-        stream = Thread(target=mastodon.stream_hashtag, args=[hashtag, listener, 0, 1, 300, 1, 300])
-        threads.append(stream)
+    async def start_stream(hashtag):
+        # Check if the stream is healthy
+        try:
+            healthy = mastodon.stream_healthy()
+            if healthy == True:
+                listener = HashtagListener(mastodon, loop)
+                await loop.run_in_executor(None, mastodon.stream_hashtag, hashtag, listener, 0, 1, 300, 1, 5)
+        except Exception as e:
+            logging.error(f"Error starting streaming task: {e}")
 
-    # Start all threads
-    for thread in threads:
-        thread.daemon = True
-        thread.start()
-
-    for thread in threads:
-        thread.join()
+    tasks = [start_stream(hashtag) for hashtag in hashtags]
+    await asyncio.gather(*tasks)
 
 # Get settings
 async def get_settings():
     async with aiofiles.open('components/settings.html', 'r', encoding='utf-8') as file:
         settings_template = await file.read()
+    config = load_config()
     return await render_template_string(settings_template, configuration=config)
 
 # Get worker status
@@ -432,14 +366,36 @@ async def index():
     return await render_template('index.html',
         accountInfo=accountInfo,
         settings=settings,
-        workerStatus=workerStatus
+        workerStatus=workerStatus,
     )
 
 # Submit settings
 @app.route('/submit_settings', methods=['POST'])
 async def submit_settings():
+
+    # Use await with request.form to get the form data asynchronously
     form_data = await request.form
-    new_data_dict = {key: form_data.getlist(key) if len(form_data.getlist(key)) > 1 else form_data[key] for key in form_data}
+
+    # Correctly use getlist to handle multiple values for each field
+    hashtags = form_data.getlist('Hashtags[]')
+    print(hashtags)
+    bad_words = form_data.getlist('bad_words[]')
+    bad_hashtags = form_data.getlist('bad_hashtags[]')
+    bad_accounts = form_data.getlist('bad_accounts[]')
+
+    new_data_dict = {
+        'hashtags': hashtags,
+        'bad_words': bad_words,
+        'bad_hashtags': bad_hashtags,
+        'bad_accounts': bad_accounts,
+    }
+
+    print(new_data_dict)
+
+    # Add every other key
+    for key in form_data:
+        if key not in new_data_dict and not key.endswith('[]'):
+            new_data_dict[key] = form_data.get(key)
 
     # Update the configuration with new data
     update_config(config, new_data_dict)
@@ -454,9 +410,10 @@ async def ws():
         while True:
             # Receive a message from the client
             message = await websocket.receive()
-            print(f"{message}")
+            await broadcast_message(message)
     except:
         # Handle exceptions, e.g., client disconnecting
+        await broadcast_message("Client disconnected.")
         pass
     finally:
         connections.remove(websocket._get_current_object())

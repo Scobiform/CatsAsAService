@@ -10,7 +10,7 @@ input[type="text" i], input[type="password" i], input[type="email" i] {
 }
 
 input[type="text" i]:focus, input[type="password" i]:focus, input[type="email" i]:focus {
-    background-color: var(--m);
+    background-color: var(--ff);
     color: var(--00);
     border: 1px var(--m) solid;
 }
