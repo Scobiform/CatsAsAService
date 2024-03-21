@@ -17,35 +17,49 @@
     <input type="text" id="heartbeatIcon" name="heartbeatIcon" aria-label="Heartbeat Icon" value="{{ configuration.heartbeatIcon }}">
 
     <h3>Hashtags:</h3>
-    {% for hashtag in configuration.hashtags %}
-        <input type="text" name="Hashtags[]" value="{{ hashtag }}" aria-label="Hashtags">
-    {% endfor %}
+    <div id="HashtagsContainer">
+        {% for hashtag in configuration.hashtags %}
+            <input type="text" name="Hashtags[]" value="{{ hashtag }}" aria-label="Hashtags">
+        {% endfor %}
+    </div>
+    <span class="add-icon" onclick="addInput('Hashtags')">➕</span>
 
     <h3>Bad words:</h3>
-    {% for bad_word in configuration.bad_words %}
-        <input type="text" name="bad_words[]" value="{{ bad_word }}" aria-label="Bad words">
-    {% endfor %}
+    <div id="bad_wordsContainer">
+        {% for bad_word in configuration.bad_words %}
+            <input type="text" name="bad_words[]" value="{{ bad_word }}" aria-label="Bad words">
+        {% endfor %}
+    </div>
+    <span class="add-icon" onclick="addInput('bad_words')">➕</span>
 
     <h3>Bad hashtags:</h3>
-    {% for bad_hashtag in configuration.bad_hashtags %}
-        <input type="text" name="bad_hashtags[]" value="{{ bad_hashtag }}" aria-label="Bad hashtags">
-    {% endfor %}
+    <div id="bad_hashtagsContainer">
+        {% for bad_hashtag in configuration.bad_hashtags %}
+            <input type="text" name="bad_hashtags[]" value="{{ bad_hashtag }}" aria-label="Bad hashtags">
+        {% endfor %}
+    </div>
+    <span class="add-icon" onclick="addInput('bad_hashtags')">➕</span>
 
     <h3>Bad accounts:</h3>
-    {% for bad_account in configuration.bad_accounts %}
-        <input type="text" name="bad_accounts[]" value="{{ bad_account }}" aria-label="Bad accounts">
-    {% endfor %}
+        <div id="bad_accountsContainer">
+        {% for bad_account in configuration.bad_accounts %}
+            <input type="text" name="bad_accounts[]" value="{{ bad_account }}" aria-label="Bad accounts">
+        {% endfor %}
+        </div>
+    <span class="add-icon" onclick="addInput('bad_accounts')">➕</span>
 
     <h3>Toot content</h3>
     <label class="switch" for="postContent">Post Content:
-        <input type="hidden" name="postContent" value="0">
-        <input type="checkbox" id="postContent" name="postContent" value="{{ configuration.postContent }}" aria-label="Post Content">
+        <input type="hidden" id="postContentHidden" name="postContent" value="0">
+        <input type="checkbox" id="postContent" name="postContent" value="1" aria-label="Post Content" 
+                {{ "checked" if configuration.postContent == '1' else "" }}
+        >
         <span class="slider"></span>
     </label>
 
     <!-- Slider range for interval in seconds from 0 to 1 day -->
     <label for="interval">Interval:</label>
-    <input type="range" id="interval" name="interval" min="0" max="86400" step="1" value="{{ configuration.interval }}">
+    <input type="range" id="interval" name="interval" min="420" max="86400" step="1" value="{{ configuration.interval }}">
 
     <label for="tootPattern">Toot Pattern:</label>
     <input type="textarea" id="tootPattern" name="tootPattern" value="{{ configuration.tootPattern }}" aria-label="Toot Pattern">

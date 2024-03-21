@@ -368,10 +368,13 @@ async def index():
     # Gwt Worker Status
     workerStatus = await get_worker_status()
 
+    tasklist = tasks
+
     return await render_template('index.html',
         accountInfo=accountInfo,
         settings=settings,
         workerStatus=workerStatus,
+        tasklist=tasklist
     )
 
 # Submit settings

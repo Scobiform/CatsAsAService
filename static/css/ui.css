@@ -80,6 +80,7 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
     border: none;
     width: inherit;
     margin: 0 auto;
+    font-size: xxx-large;
 }
 
 .threadWorker button:hover {
@@ -226,4 +227,13 @@ input:checked + .slider:before {
   -webkit-transform: translateX(26px);
   -ms-transform: translateX(26px);
   transform: translateX(26px);
+}
+
+/* Adding new input elements */
+.add-icon {
+  cursor: pointer;
+  font-size: 24px;
+  margin-left: 8px;
+  color: green;
+  float: right;
 }

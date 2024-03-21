@@ -29,6 +29,11 @@
 
         <div class="threadWorker">
             {{ workerStatus | safe }}
+            {% for task in tasks %}
+                <div class="task">
+                    {{ task | safe }}
+                </div>
+            {% endfor %}
         </div>
 
         <div class="accountInformation">
