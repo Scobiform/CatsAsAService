@@ -72,6 +72,12 @@ logging.basicConfig(
     level=getattr(logging, logging_config['level'])
 )
 
+# Streaming manager
+streaming_manager = None
+
+# Is the stream running
+stream_running = config['stream_running']
+
 # Hashtags to listen to
 hashtags = config['hashtags']
 
@@ -138,6 +144,61 @@ def create_file(file_name):
         print(f"File '{file_name}' created successfully.")
     except Exception as e:
         print(f"Error creating '{file_name}': {e}")
+
+# Content tooting
+# ToDo: Encapsulate this function in a class and get the text patterns from settings
+async def toot_content(mastodon, interval):
+    '''This function posts content to Mastodon.
+    Args:
+        mastodon (Mastodon): The Mastodon instance to use.
+        interval (int): The interval in seconds between posting content.
+        
+    Returns:
+        None
+
+    ToDo:
+        - Move text patterns to settings.json
+    '''
+
+    # Path where the media files are stored
+    path = "content/images/"
+    
+    # Create the directory if it doesn't exist
+    if not os.path.exists(path):
+        os.makedirs(path)
+    
+    # Read the last posted number from the file
+    last_posted = config['lastPosetd']
+    
+    # Get the list of all filenames in the directory and sort them
+    all_files = sorted(os.listdir(path), key=lambda x: int(x.split('.')[0]))
+    
+    # Find the index of the last posted file, if it exists
+    last_index = next((i for i, filename in enumerate(all_files) if filename.startswith(str(last_posted))), -1)
+
+    # Iterate through the files starting from the last posted
+    for filename in all_files[last_index + 1:]:
+        # Extract just the number part of the filename
+        file_num = int(filename.split('.')[0])
+        media_path = os.path.join(path, filename)
+
+        try:
+            # Prepare the alt text and metadata for posting
+            alt_text = "#Cat" + str(file_num)
+            metadata = mastodon.media_post(media_path, "image/jpg", description=alt_text)
+            
+            # Construct the toot text and post it
+            toot_text = "#CatsOfMastodon\n" + alt_text + "\n\n"
+            #mastodon.status_post(toot_text, media_ids=metadata["id"], visibility="public")
+            
+            # Update the last posted number
+            last_posted = file_num
+
+            print(f"Posted: {file_num}")
+            time.sleep(interval)  # Respect the rate limits
+            
+        except MastodonInternalServerError as errorcode:
+            logging.error(f"MastodonInternalServerError: {errorcode}")
 
 # Hashtag Listener
 class HashtagListener(StreamListener):
@@ -234,99 +295,60 @@ class HashtagListener(StreamListener):
             return
         return
 
-# Content tooting
-async def toot_content(mastodon, interval):
-    '''This function posts content to Mastodon.
-    Args:
-        mastodon (Mastodon): The Mastodon instance to use.
-        interval (int): The interval in seconds between posting content.
-        
-    Returns:
-        None
+# Streaming Manager
+class StreamingManager:
+    def __init__(self, mastodon, loop):
+        self.mastodon = mastodon
+        self.loop = loop
+        self.tasks = tasks
+        self.hashtags = hashtags
 
-    ToDo:
-        - Move text patterns to settings.json
-    '''
+    async def start_stream(self, hashtag, max_retries=7, retry_delay=42):
+        """Attempt to start streaming for a hashtag with retries.
 
-    # Path where the media files are stored
-    path = "content/images/"
-    
-    # Create the directory if it doesn't exist
-    if not os.path.exists(path):
-        os.makedirs(path)
-    
-    # Read the last posted number from the file
-    last_posted = config['lastPosetd']
-    
-    # Get the list of all filenames in the directory and sort them
-    all_files = sorted(os.listdir(path), key=lambda x: int(x.split('.')[0]))
-    
-    # Find the index of the last posted file, if it exists
-    last_index = next((i for i, filename in enumerate(all_files) if filename.startswith(str(last_posted))), -1)
-
-    # Iterate through the files starting from the last posted
-    for filename in all_files[last_index + 1:]:
-        # Extract just the number part of the filename
-        file_num = int(filename.split('.')[0])
-        media_path = os.path.join(path, filename)
-
-        try:
-            # Prepare the alt text and metadata for posting
-            alt_text = "#Cat" + str(file_num)
-            metadata = mastodon.media_post(media_path, "image/jpg", description=alt_text)
+        Args:
+            hashtag (str): The hashtag to stream.
+            max_retries (int): Maximum number of retry attempts.
+            retry_delay (int): Delay between retries in seconds.
+        """
+        attempt = 0
+        while attempt < max_retries:
+            try:
+                healthy = self.mastodon.stream_healthy()
+                if healthy:
+                    listener = HashtagListener(self.mastodon, self.loop)
+                    await self.loop.run_in_executor(None, self.mastodon.stream_hashtag, hashtag, listener, 0, 1, 300, 1, 5)
+                    message = f"Successfully started streaming for #{hashtag} <br>"
+                    logging.info(message)
+                    await broadcast_message(message)
+                    break  # Streaming started successfully, exit the loop
+                else:
+                    logging.warning(f"Streaming not healthy for #{hashtag}, will retry...")
+                    await broadcast_message(f"Streaming not healthy for #{hashtag}, will retry...")
+            except Exception as e:
+                logging.error(f"Error starting streaming task for #{hashtag}: {e}")
             
-            # Construct the toot text and post it
-            toot_text = "#CatsOfMastodon\n" + alt_text + "\n\n"
-            #mastodon.status_post(toot_text, media_ids=metadata["id"], visibility="public")
-            
-            # Update the last posted number
-            last_posted = file_num
+            attempt += 1
+            if attempt < max_retries:
+                await asyncio.sleep(retry_delay)  # Wait before retrying
+            else:
+                logging.error(f"Failed to start streaming for #{hashtag} after {max_retries} attempts")
 
-            print(f"Posted: {file_num}")
-            time.sleep(interval)  # Respect the rate limits
-            
-        except MastodonInternalServerError as errorcode:
-            logging.error(f"MastodonInternalServerError: {errorcode}")
+    async def start(self):
+        """Start all streaming tasks."""
+        logging.info('Starting streaming...')
+        for hashtag in self.hashtags:
+            task = asyncio.create_task(self.start_stream(hashtag, 7, 42))
+            self.tasks.append(task)
+        await asyncio.gather(*self.tasks)
 
-# Thread worker
-async def worker(mastodon, postContentbool, interval, loop):
-    '''This function starts the taska that will listens to the stream
-    Args:
-        mastodon (Mastodon): The Mastodon instance to use.
-        postContentbool (int): Whether to post content or not.
-        interval (int): The interval in seconds between posting content.
-        loop (asyncio.AbstractEventLoop): The event loop to use.
-    
-    Returns:
-        None
-
-    ToDo: 
-            - Add a way to stop the tasks
-            - Add a way to restart the tasks
-    '''
-
-    # Start the worker
-    logging.info('Starting streaming...')
-
-    # Content tooting
-    if postContentbool == 1:
-        await toot_content(mastodon, interval)
-
-    # Hashtag listening
-    # Create a listener for each hashtag
-    # The listener will be called when a new status arrives
-    async def start_stream(hashtag):
-        # Check if the stream is healthy
-        try:
-            healthy = mastodon.stream_healthy()
-            if healthy == True:
-                listener = HashtagListener(mastodon, loop)
-                await loop.run_in_executor(None, mastodon.stream_hashtag, hashtag, listener, 0, 1, 300, 1, 5)
-        except Exception as e:
-            logging.error(f"Error starting streaming task: {e}")
-
-    tasks = [start_stream(hashtag) for hashtag in hashtags]
-    await asyncio.gather(*tasks)
+    async def stop(self):
+        """Stop all streaming tasks."""
+        for task in self.tasks:
+            task.cancel()
+        # Wait for all tasks to be cancelled, ignoring cancellation exceptions
+        await asyncio.gather(*self.tasks, return_exceptions=True)
+        self.tasks = []  # Reset tasks list
 
 # Get settings
 async def get_settings():
@@ -337,10 +359,10 @@ async def get_settings():
 
 # Get worker status
 async def get_worker_status():
-    ''' Placeholder for worker status'''
+    ''' Get the worker component and render it with the current configuration.'''
     async with aiofiles.open('components/worker.html', 'r', encoding='utf-8') as file:
         worker = await file.read()
-    return worker
+    return await render_template_string(worker, configuration=config)
 
 # Render Account Information
 async def get_account():
@@ -380,7 +402,10 @@ async def index():
 # Submit settings
 @app.route('/submit_settings', methods=['POST'])
 async def submit_settings():
-
+    '''Submit the settings form and update the configuration.
+    
+    ToDo: Add auth to route
+    '''
     # Use await with request.form to get the form data asynchronously
     form_data = await request.form
 
@@ -406,7 +431,31 @@ async def submit_settings():
     update_config(config, new_data_dict)
 
     return await index()
+
+# Start streaming
+@app.route('/start_streaming', methods=['POST'])
+async def start_streaming():
+    '''Start the streaming manager.
     
+    ToDo: Add auth to route
+    '''
+    if streaming_manager:
+        await streaming_manager.start()
+        return jsonify({'status': 'streaming started'})
+    return jsonify({'error': 'Streaming manager not initialized'}), 400
+
+# Stop streaming
+@app.route('/stop_streaming', methods=['POST'])
+async def stop_streaming():
+    '''Stop the streaming manager.
+
+    ToDo: Add auth to route
+    '''
+    if streaming_manager:
+        await streaming_manager.stop()
+        return jsonify({'status': 'streaming stopped'})
+    return jsonify({'error': 'Streaming manager not initialized'}), 400
+
 # WebSocket route
 @app.websocket("/ws")
 async def ws():
@@ -435,17 +484,26 @@ async def main():
     user = mastodon.me()
 
     # Who Am I
-    logging.info(user.username)
+    logging.info('....' + user.username + ' successfully logged in.')
 
-    # Start thread worker
+
+    # Content tooting
+    #if postContent == '1':
+    #    await toot_content(mastodon, interval)
+
+    # Start tasks
     try:
-        # Get event loop and run the quart app
+        # Get event loop
         loop = asyncio.get_event_loop()
-        # Start the worker
-        await worker(mastodon, postContent, interval, loop)
+
+        # Start the streaming manager
+        global streaming_manager
+        streaming_manager = StreamingManager(mastodon, loop)
+
         # Run the Quart app
         await app.run_task()
     except KeyboardInterrupt:
+        await streaming_manager.stop()
         logging.error("Stopping worker...")
     except Exception as errorcode:
         logging.error("ERROR: " + str(errorcode))

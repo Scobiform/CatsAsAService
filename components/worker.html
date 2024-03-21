@@ -1,17 +1,37 @@
 <button id="toggleButton" onclick="toggleFunction()">▶️</button>
 
-<script>
-let isStarted = false; 
+<div id="stream_running">
+  {% if configuration.stream_running %}
+    running
+  {% else %}
+    
+  {% endif %}
+</div>
 
-function toggleFunction() {
-  const button = document.getElementById('toggleButton');
-  
-  if (!isStarted) {
-    button.innerHTML = '⏹️';
-    isStarted = true;
-  } else {
-    button.innerHTML = '▶️';
-    isStarted = false;
+<script>
+
+  async function toggleFunction() {
+    const button = document.getElementById('toggleButton'); 
+    const running = document.getElementById('stream_running');
+
+    if (!running.innerHTML.includes('running')) {
+      // Start streaming
+      const response = await fetch('/start_streaming', { method: 'POST' });
+      if (response.ok) {
+        console.log('Streaming started');
+        button.innerHTML = '⏹️';
+      } else {
+        console.error('Failed to start streaming');
+      }
+    } else {
+      // Stop streaming
+      const response = await fetch('/stop_streaming', { method: 'POST' });
+      if (response.ok) {
+        console.log('Streaming stopped');
+        button.innerHTML = '▶️';
+      } else {
+        console.error('Failed to stop streaming');
+      }
+    }
   }
-}
-</script>
+  </script>

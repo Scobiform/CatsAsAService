@@ -9,10 +9,11 @@
         "format": "%(asctime)s - %(levelname)s - %(message)s",
         "level": "INFO"
     },
+    "stream_running": false,
     "hashtags": [
         "CatsOfMastodon",
         "Caturday",
-        "CatsOfTheFediverse",
+        "CatsOfFediverse",
         "FediCats",
         "Cats",
         "CatContent",
@@ -24,7 +25,12 @@
         "MastoCats",
         "MeowMonday",
         "WhiskersWednesday",
-        "TunaTuesday"
+        "TunaTuesday",
+        "AllCatsAreBeautiful",
+        "Kadi",
+        "แมว",
+        "кот",
+        "кошка"
     ],
     "bad_words": [
         "shop",
