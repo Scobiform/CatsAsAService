@@ -97,6 +97,7 @@ logging.basicConfig(
 streaming_manager = None
 
 # Is the stream running
+global stream_running
 stream_running = config['stream_running']
 
 # Hashtags to listen to
@@ -118,6 +119,26 @@ def update_config(configuraion, new_data):
     # Save the updated configuration back to the file
     with open('settings.json', 'w', encoding='utf-8') as config_file:
         json.dump(configuraion, config_file, indent=4)
+
+# Update one key value in the settings.json file
+async def update_settings(key, value):
+    settings_file = 'settings.json'
+    try:
+        # Attempt to read the current settings
+        async with aiofiles.open(settings_file, mode='r', encoding='utf-8') as file:
+            settings = json.loads(await file.read())
+        
+        # Update the specific key-value pair
+        settings[key] = value
+        
+        # Write the updated settings back to the file
+        async with aiofiles.open(settings_file, mode='w', encoding='utf-8') as file:
+            await file.write(json.dumps(settings, indent=4))
+
+    except FileNotFoundError:
+        logging.error("settings.json file does not exist.")
+    except Exception as e:
+        logging.error(f"Failed to update settings: {e}")
 
 # Quart app
 app = Quart(__name__)
@@ -341,6 +362,7 @@ class StreamingManager:
         self.loop = loop
         self.tasks = tasks
         self.hashtags = hashtags
+        self.stream_running = stream_running
 
     async def start_stream(self, hashtag, max_retries=7, retry_delay=42):
         """Attempt to start streaming for a hashtag with retries.
@@ -350,6 +372,7 @@ class StreamingManager:
             max_retries (int): Maximum number of retry attempts.
             retry_delay (int): Delay between retries in seconds.
         """
+
         attempt = 0
         while attempt < max_retries:
             try:
@@ -376,7 +399,7 @@ class StreamingManager:
     async def start(self):
         """Start all streaming tasks."""
         logging.info('Starting streaming...')
-        await broadcast_message("Starting streaming. Give it some time to start all listeners...")
+        await broadcast_message("Starting streaming. Give it some time to start all listeners..." + stream_running)
         for hashtag in self.hashtags:
             task = asyncio.create_task(self.start_stream(hashtag, 7, 42))
             self.tasks.append(task)
@@ -481,6 +504,12 @@ async def start_streaming():
     #ToDo: Add auth to route
     '''
     if streaming_manager:
+        # Update the stream_running status
+        try:
+            stream_running = 'running'
+            await update_settings('stream_running', stream_running)
+        except Exception as e:
+            logging.error(f"Failed to update stream_running status: {e}")
         await streaming_manager.start()
         return jsonify({'status': 'streaming started'})
     return jsonify({'error': 'Streaming manager not initialized'}), 400
@@ -527,27 +556,20 @@ async def main():
     # Who Am I
     logging.info('....' + user.username + ' successfully logged in.')
 
-
     # Content tooting
     #if postContent == '1':
     #    await toot_content(mastodon, interval)
 
-    # Start tasks
-    try:
-        # Get event loop
-        loop = asyncio.get_event_loop()
+    # Get event loop
+    loop = asyncio.get_event_loop()
 
-        # Start the streaming manager
-        global streaming_manager
-        streaming_manager = StreamingManager(mastodon, loop)
+    # Start the streaming manager
+    global streaming_manager
+    streaming_manager = StreamingManager(mastodon, loop)
 
-        # Run the Quart app
-        await app.run_task()
-    except KeyboardInterrupt:
-        await streaming_manager.stop()
-        logging.error("Stopping worker...")
-    except Exception as errorcode:
-        logging.error("ERROR: " + str(errorcode))
+    # Run the Quart app
+    await app.run_task()
+
     
 if __name__ == "__main__":
     asyncio.run(main())

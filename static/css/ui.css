@@ -92,7 +92,7 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
 
 .threadWorker button {
     background-color: var(--ff);
-    color: var(--00);
+    color: var(--c);
     border: none;
     width: inherit;
     margin: 0 auto;

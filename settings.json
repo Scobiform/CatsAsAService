@@ -9,7 +9,7 @@
         "format": "%(asctime)s - %(levelname)s - %(message)s",
         "level": "INFO"
     },
-    "stream_running": false,
+    "stream_running": "running",
     "hashtags": [
         "CatsOfMastodon",
         "Caturday",
@@ -28,9 +28,9 @@
         "TunaTuesday",
         "AllCatsAreBeautiful",
         "Kadi",
-        "แมว",
-        "кот",
-        "кошка"
+        "\u0e41\u0e21\u0e27",
+        "\u043a\u043e\u0442",
+        "\u043a\u043e\u0448\u043a\u0430"
     ],
     "bad_words": [
         "shop",
