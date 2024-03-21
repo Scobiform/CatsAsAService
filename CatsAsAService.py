@@ -255,11 +255,6 @@ async def toot_content(mastodon, interval):
     if not os.path.exists(path):
         os.makedirs(path)
     
-    # Create the last posted file if it doesn't exist
-    if not os.path.exists("content/lastPosted.txt"):
-        with open("content/lastPosted.txt", 'w') as file:
-            file.write("0")
-
     # Read the last posted number from the file
     last_posted = config['lastPosetd']
     
@@ -306,10 +301,8 @@ async def worker(mastodon, postContentbool, interval, loop):
         None
 
     ToDo: 
-            - Add a way to stop the taska
+            - Add a way to stop the tasks
             - Add a way to restart the tasks
-
-
     '''
 
     # Start the worker

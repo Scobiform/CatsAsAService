@@ -36,10 +36,19 @@
   }
 
 // Form
-document.getElementById('postContent').addEventListener('change', function() {
-  if (this.checked) {
-    this.value = '1';
+document.addEventListener('DOMContentLoaded', function() {
+  const postContentCheckbox = document.getElementById('postContent');
+  if(postContentCheckbox.value === '1') {
+    postContentCheckbox.checked = true;
   } else {
-    this.value = '0';
+    postContentCheckbox.checked = false;
   }
+
+  document.getElementById('postContent').addEventListener('change', function() {
+    if (this.checked) {
+      this.value = '1';
+    } else {
+      this.value = '0';
+    }
+  });
 });
