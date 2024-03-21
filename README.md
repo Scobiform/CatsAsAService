@@ -13,9 +13,7 @@
 
 ## Introduction
 
-CatsAsAService is a bot for the Mastodon social network. It boosts and favorites posts with specific hashtags and toots content from a designated folder. 
-
-![Warning](https://img.shields.io/badge/warning-important-red.svg)
+CatsAsAService is a bot for the Mastodon social network. 
 
 **⚠️ Warning:** This bot is easily detectable by instance admins. Please do not use it for abuse or spam.
 
@@ -34,8 +32,7 @@ CatsAsAService is a bot for the Mastodon social network. It boosts and favorites
 
 ## Usage
 
-- Set your Mastodon email and password once in the `settings.json`
-- Set your desired hashtags, bad words, and accounts
+- Set your Mastodon email and password once in the `settings.json` or via the web interface
 - Run the script: `python3 CatsAsAService.py`.
 - Use `Ctrl+C` to stop the script.
 
