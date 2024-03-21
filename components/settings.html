@@ -16,27 +16,27 @@
     <label for="heartbeatIcon">Heartbeat Icon:</label>
     <input type="text" id="heartbeatIcon" name="heartbeatIcon" aria-label="Heartbeat Icon" value="{{ configuration.heartbeatIcon }}">
 
-    <label for="Hashtags[]">Hashtags:</label>
+    <h3>Hashtags:</h3>
     {% for hashtag in configuration.hashtags %}
         <input type="text" name="Hashtags[]" value="{{ hashtag }}" aria-label="Hashtags">
     {% endfor %}
 
-    <label for="bad_words[]">Bad words:</label>
+    <h3>Bad words:</h3>
     {% for bad_word in configuration.bad_words %}
         <input type="text" name="bad_words[]" value="{{ bad_word }}" aria-label="Bad words">
     {% endfor %}
 
-    <label for="bad_hashtags[]">Bad hashtags:</label>
+    <h3>Bad hashtags:</h3>
     {% for bad_hashtag in configuration.bad_hashtags %}
         <input type="text" name="bad_hashtags[]" value="{{ bad_hashtag }}" aria-label="Bad hashtags">
     {% endfor %}
 
-    <label for="bad_accounts[]">Bad accounts:</label>
+    <h3>Bad accounts:</h3>
     {% for bad_account in configuration.bad_accounts %}
         <input type="text" name="bad_accounts[]" value="{{ bad_account }}" aria-label="Bad accounts">
     {% endfor %}
 
-    <label for=""postContent">Post Content:</label>
+    <label>Post Content:</label>
     <input type="text" id="postContent" name="postContent" value="{{ configuration.postContent}}" aria-label="Post Content">
 
     <!-- Slider range for interval in seconds from 0 to 1 day -->

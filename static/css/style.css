@@ -9,9 +9,23 @@
   --ff: #ffffff;
   /*  */
   --maxHeight: 91vh;
+  --font: monospace;
 }
 
 /* Global styles */
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: var(--font);
+  margin: 0;
+  padding: 0;
+  background-color: var(--ff);
+}
+
 
 ul {
   list-style-type: none;

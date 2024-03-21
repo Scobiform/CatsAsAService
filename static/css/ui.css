@@ -1,5 +1,9 @@
 /* scobiform.com 2024 */
 
+button {
+    font-family: inherit;
+}
+
 input[type="text" i], input[type="password" i], input[type="email" i] {
     appearance: auto;
     background-color: var(--k);
@@ -97,6 +101,7 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
     scrollbar-width: thin;
     width: -webkit-fill-available;
     word-wrap: break-word;
+    padding: 0.42rem;
   }
   
   #messages img {
@@ -154,13 +159,9 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
   
   /* Style the tab content */
   .tabcontent {
-    display: none;
-    padding: 6px 12px;
     border: 1px solid var(--k);
     border-top: none;
-    position: fixed;
     height: 100vh;
     width: 21rem;
-    top: 3rem;
   }
 
