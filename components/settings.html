@@ -1,4 +1,6 @@
 <form action="/submit_settings" method="post">
+    <h2>General Settings</h2>
+    <legend>{{ localization.en.legend.for_instance }}</legend>
     <label for="app_name">App Name:</label>
     <input type="text" id="app_name" name="app_name" value="{{ configuration.app_name}}">
     
@@ -14,10 +16,12 @@
     <input type="password" id="password" name="password" current-password="{{ configuration.password }}" value="{{ configuration.password}}">
 
     <h2>Bot settings</h2>
+    <legend>{{ localization.en.legend.bot_settings }}</legend>
     <label for="heartbeatIcon">Heartbeat Icon:</label>
     <input type="text" id="heartbeatIcon" name="heartbeatIcon" aria-label="Heartbeat Icon" value="{{ configuration.heartbeatIcon }}">
 
     <h3>Hashtags:</h3>
+    <legend>{{ localization.en.legend.hashtags }}</legend>
     <div id="HashtagsContainer">
         {% for hashtag in configuration.hashtags %}
             <input type="text" name="Hashtags[]" value="{{ hashtag }}" aria-label="Hashtags">
@@ -28,6 +32,7 @@
     <hr>
 
     <h3>Bad words:</h3>
+    <legend>{{ localization.en.legend.bad_words }}</legend>
     <div id="bad_wordsContainer">
         {% for bad_word in configuration.bad_words %}
             <input type="text" name="bad_words[]" value="{{ bad_word }}" aria-label="Bad words">
@@ -38,6 +43,7 @@
     <hr>
 
     <h3>Bad hashtags:</h3>
+    <legend>{{ localization.en.legend.bad_hashtags }}</legend>
     <div id="bad_hashtagsContainer">
         {% for bad_hashtag in configuration.bad_hashtags %}
             <input type="text" name="bad_hashtags[]" value="{{ bad_hashtag }}" aria-label="Bad hashtags">

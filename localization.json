@@ -2,19 +2,34 @@
     "en": {
       "greeting": "Hello",
       "legend": {
-        "authentication": "You need to fill in your Mastodon credentials once to create your secret files."
+        "authentication": "You need to fill in your Mastodon credentials once to create your secret files.",
+        "for_instance": "You need to provide your instance URL. For example: mastodon.social",
+        "bot_settings": "Set a heartbeat icon for your bot. You can use any emoji. For example: 😻",
+        "hashtags": "Add hashtags to your stream manager. Each hashtag will start its own stream and broadcast messages to the messages tab.",
+        "bad_words": "Filter-out messages containing these words.",
+        "bad_hashtags": "Filter-out messages containing these hashtags."
       }
     },
     "de": {
       "greeting": "Hallo",
       "legend": {
-        "authentication": "Du musst deine Mastodon login Daten einmal eingeben, um deine geheimen Dateien zu erstellen."
+        "authentication": "Du musst deine Mastodon login Daten einmal eingeben, um deine geheimen Dateien zu erstellen.",
+        "for_instance": "Du musst die URL deiner Instanz angeben. Zum Beispiel: mastodon.social",
+        "bot_settings": "Setze ein Herzschlag-Icon für deinen Bot. Du kannst jedes Emoji verwenden. Zum Beispiel: 😻",
+        "hashtags": "Füge Hashtags zu deinem Stream-Manager hinzu. Jeder Hashtag startet seinen eigenen Stream und sendet Nachrichten an den Nachrichten-Tab.",
+        "bad_words": "Filtere Nachrichten mit diesen Wörtern aus.",
+        "bad_hashtags": "Filtere Nachrichten mit diesen Hashtags aus."
       }
     },
     "ru": {
       "greeting": "Привет",
       "legend": {
-        "authentication": "Для создания секретных файлов необходимо один раз ввести учетные данные Mastodon."
+        "authentication": "Для создания секретных файлов необходимо один раз ввести учетные данные Mastodon.",
+        "for_instance": "Необходимо указать URL вашего экземпляра. Например: mastodon.social",
+        "bot_settings": "Установите значок сердца для вашего бота. Вы можете использовать любое эмодзи. Например: 😻",
+        "hashtags": "Добавьте хэштеги в ваш менеджер потоков. Каждый хэштег запускает свой собственный поток и транслирует сообщения во вкладку сообщений.",
+        "bad_words": "Фильтруйте сообщения, содержащие эти слова.",
+        "bad_hashtags": "Фильтруйте сообщения, содержащие эти хэштеги."
       }
     }
 }

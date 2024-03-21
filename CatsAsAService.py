@@ -81,9 +81,6 @@ password = config['password']
 # UI configuration
 heartbeatIcon = config['heartbeatIcon']
 
-# Bot Settings
-cancel_token = threading.Event() # Cancellation token
-
 # Configure logging based on the JSON settings
 logging_config = config['logging']
 logging.basicConfig(
@@ -260,6 +257,10 @@ class HashtagListener(StreamListener):
 
     # Called when a new status arrives
     def on_update(self, status):
+
+        message = f"<br>{status.account.username} tooted: {status.content} <br>"
+        asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
+
         # Skip counter - if it's 0, the status will be boosted
         skipCounter = 0  
         
@@ -362,7 +363,6 @@ class StreamingManager:
         self.loop = loop
         self.tasks = tasks
         self.hashtags = hashtags
-        self.stream_running = stream_running
 
     async def start_stream(self, hashtag, max_retries=7, retry_delay=42):
         """Attempt to start streaming for a hashtag with retries.
@@ -399,7 +399,7 @@ class StreamingManager:
     async def start(self):
         """Start all streaming tasks."""
         logging.info('Starting streaming...')
-        await broadcast_message("Starting streaming. Give it some time to start all listeners..." + stream_running)
+        await broadcast_message("Starting streaming. Give it some time to start all listeners...")
         for hashtag in self.hashtags:
             task = asyncio.create_task(self.start_stream(hashtag, 7, 42))
             self.tasks.append(task)
@@ -418,7 +418,6 @@ class StreamingManager:
 async def get_settings():
     async with aiofiles.open('components/settings.html', 'r', encoding='utf-8') as file:
         settings_template = await file.read()
-    config = load_config()
     return await render_template_string(settings_template, configuration=config, localization=localization)
 
 # Get worker status
@@ -432,6 +431,13 @@ async def get_worker_status():
 async def get_account():
     html = f'<div class="userAvatar"><img src="{user.avatar}" alt="{user.username}" /></div>'
     return html
+
+# Get any file as a component
+async def get_any_file_as_component(file):
+    ''' Get the content of a file and return it as a component.'''
+    async with aiofiles.open(file, 'r', encoding='utf-8') as file:
+        component = await file.read()
+    return component
 
 # Broadcast message
 async def broadcast_message(message):
@@ -454,13 +460,13 @@ async def index():
     # Gwt Worker Status
     workerStatus = await get_worker_status()
 
-    tasklist = tasks
+    logo = await get_any_file_as_component('components/logo.svg')
 
     return await render_template('index.html',
         accountInfo=accountInfo,
         settings=settings,
         workerStatus=workerStatus,
-        tasklist=tasklist
+        logo=logo
     )
 
 # Submit settings
@@ -502,12 +508,15 @@ async def start_streaming():
     '''Start the streaming manager.
     
     #ToDo: Add auth to route
+
     '''
     if streaming_manager:
         # Update the stream_running status
         try:
             stream_running = 'running'
             await update_settings('stream_running', stream_running)
+            load_config()
+            print('Streaming: ' + config['stream_running'])
         except Exception as e:
             logging.error(f"Failed to update stream_running status: {e}")
         await streaming_manager.start()
@@ -522,6 +531,14 @@ async def stop_streaming():
     #ToDo: Add auth to route
     '''
     if streaming_manager:
+        # Update the stream_running status
+        try:
+            stream_running = 'stopped'
+            await update_settings('stream_running', stream_running)
+            load_config()
+            print('Streaming: ' + config['stream_running'])
+        except Exception as e:
+            logging.error(f"Failed to update stream_running status: {e}")
         await streaming_manager.stop()
         return jsonify({'status': 'streaming stopped'})
     return jsonify({'error': 'Streaming manager not initialized'}), 400
@@ -570,6 +587,5 @@ async def main():
     # Run the Quart app
     await app.run_task()
 
-    
 if __name__ == "__main__":
     asyncio.run(main())

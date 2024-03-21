@@ -20,12 +20,8 @@
     <div class="leftPanel">
         <!-- logo  -->
         <div class="logo">
-            <img src="static/Caas.svg" alt="CaaS logo">
+            {{ logo | safe }}
         </div>
-
-        <nav>
-            <a href="/" aria-label="Caas">CaaS</a>
-        </nav>
 
         <div class="threadWorker">
             {{ workerStatus | safe }}
@@ -61,6 +57,15 @@
     </div>
 
     <!-- Footer content -->
+    <div class="footer">
+        <div class="footerContent">
+            <div class="footerText">
+                <p>© 2021 CaaS. All rights reserved.</p>
+            </div>
+        </div>
+        <nav>
+            <a href="/" aria-label="Caas">CaaS</a>
+        </nav>
     <script src="{{ url_for('static', filename='app.js') }}" defer></script>
 
     </body>

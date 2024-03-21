@@ -11,6 +11,11 @@ label {
 
 legend {
     font-family: inherit;
+    padding: 0.42rem;
+    margin-bottom: 1.4rem;
+    background: var(--c);
+    color: var(--ff);
+    font-size: smaller;
 }
 
 hr {
