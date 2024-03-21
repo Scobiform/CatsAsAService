@@ -36,12 +36,13 @@
   }
 
 // Form
+// Add ui switch to the post content checkbox
 document.addEventListener('DOMContentLoaded', function() {
-  const postContentCheckbox = document.getElementById('postContent');
-  if(postContentCheckbox.value === '1') {
-    postContentCheckbox.checked = true;
+  const postContent = document.getElementById('postContent');
+  if(postContent.value === '1') {
+    postContent.checked = true;
   } else {
-    postContentCheckbox.checked = false;
+    postContent.checked = false;
   }
 
   document.getElementById('postContent').addEventListener('change', function() {

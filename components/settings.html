@@ -38,7 +38,8 @@
 
     <h3>Toot content</h3>
     <label class="switch" for="postContent">Post Content:
-        <input type="checkbox" id="postContent" name="postContent" value="{{configuration.postContent}}" aria-label="Post Content">
+        <input type="hidden" name="postContent" value="0">
+        <input type="checkbox" id="postContent" name="postContent" value="{{ configuration.postContent }}" aria-label="Post Content">
         <span class="slider"></span>
     </label>
 

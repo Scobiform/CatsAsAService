@@ -383,7 +383,6 @@ async def submit_settings():
 
     # Correctly use getlist to handle multiple values for each field
     hashtags = form_data.getlist('Hashtags[]')
-    print(hashtags)
     bad_words = form_data.getlist('bad_words[]')
     bad_hashtags = form_data.getlist('bad_hashtags[]')
     bad_accounts = form_data.getlist('bad_accounts[]')
@@ -394,8 +393,6 @@ async def submit_settings():
         'bad_hashtags': bad_hashtags,
         'bad_accounts': bad_accounts,
     }
-
-    print(new_data_dict)
 
     # Add every other key
     for key in form_data:
