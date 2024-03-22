@@ -9,7 +9,7 @@ import aiofiles
 from threading import Thread
 from datetime import date
 from concurrent.futures import ThreadPoolExecutor
-from quart import Quart, render_template, websocket, render_template_string, request, jsonify
+from quart import Quart, abort, render_template, send_from_directory, websocket, render_template_string, request, jsonify
 from mastodon import Mastodon
 from mastodon.streaming import StreamListener, CallbackStreamListener
 from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayError, MastodonServiceUnavailableError, MastodonNetworkError, MastodonAPIError, MastodonInternalServerError, MastodonIllegalArgumentError
@@ -92,6 +92,9 @@ logging.basicConfig(
 
 # Streaming manager
 streaming_manager = None
+
+# Content manager
+content_manager = None
 
 # Is the stream running
 global stream_running
@@ -185,59 +188,77 @@ def create_file(file_name):
         print(f"Error creating '{file_name}': {e}")
 
 # Content tooting
-# ToDo: Encapsulate this function in a class and get the text patterns from settings
-async def toot_content(mastodon, interval):
-    '''This function posts content to Mastodon.
+class ContentManager:
+    '''A manager for posting content to Mastodon.
+    
     Args:
         mastodon (Mastodon): The Mastodon instance to use.
-        interval (int): The interval in seconds between posting content.
-        
-    Returns:
-        None
-
-    ToDo:
-        - Move text patterns to settings.json
+        config (dict): Configuration settings, including interval and content path.
+        loop (asyncio.BaseEventLoop): The event loop to run asynchronous tasks.
     '''
+    def __init__(self, mastodon, config, loop):
+        self.mastodon = mastodon
+        self.config = config
+        self.loop = loop
+        self.toot_tasklist = []
 
-    # Path where the media files are stored
-    path = "content/images/"
-    
-    # Create the directory if it doesn't exist
-    if not os.path.exists(path):
-        os.makedirs(path)
-    
-    # Read the last posted number from the file
-    last_posted = config['lastPosetd']
-    
-    # Get the list of all filenames in the directory and sort them
-    all_files = sorted(os.listdir(path), key=lambda x: int(x.split('.')[0]))
-    
-    # Find the index of the last posted file, if it exists
-    last_index = next((i for i, filename in enumerate(all_files) if filename.startswith(str(last_posted))), -1)
-
-    # Iterate through the files starting from the last posted
-    for filename in all_files[last_index + 1:]:
-        # Extract just the number part of the filename
-        file_num = int(filename.split('.')[0])
-        media_path = os.path.join(path, filename)
-
+    async def toot_content(self):
+        '''Post content to Mastodon with a specified interval.
+        '''
         try:
-            # Prepare the alt text and metadata for posting
-            alt_text = "#Cat" + str(file_num)
-            metadata = mastodon.media_post(media_path, "image/jpg", description=alt_text)
+            # Read the last posted number from the file
+            last_posted = self.config['last_posted']
             
-            # Construct the toot text and post it
-            toot_text = "#CatsOfMastodon\n" + alt_text + "\n\n"
-            #mastodon.status_post(toot_text, media_ids=metadata["id"], visibility="public")
+            # Get the list of all filenames in the directory and sort them
+            all_files = sorted(os.listdir(self.config['content_path']), key=lambda x: int(x.split('.')[0]))
             
-            # Update the last posted number
-            last_posted = file_num
+            # Find the index of the last posted file, if it exists
+            last_index = next((i for i, filename in enumerate(all_files) if filename.startswith(str(last_posted))), -1)
 
-            print(f"Posted: {file_num}")
-            time.sleep(interval)  # Respect the rate limits
-            
-        except MastodonInternalServerError as errorcode:
-            logging.error(f"MastodonInternalServerError: {errorcode}")
+            for filename in all_files[last_index + 1:]:
+                file_num = int(filename.split('.')[0])
+                media_path = os.path.join(self.config['content_path'], str(filename))
+                #print(media_path)
+
+                #alt_text = "#Cat" + str(file_num)
+                #metadata = self.mastodon.media_post(media_path, "image/jpg", description=alt_text)
+                
+                # Uncomment to post
+                # toot_text = "#CatsOfMastodon\n" + alt_text + "\n\n"
+                # self.mastodon.status_post(toot_text, media_ids=[metadata['id']], visibility="public")
+
+                message = f"<img src='{media_path}' alt='Cat {file_num}' />"
+                await broadcast_message(message)
+                
+                self.config['last_posted'] = file_num
+                await update_settings('last_posted', file_num)
+
+                print(f"Posted: {file_num}")
+                await asyncio.sleep(int(self.config['interval']))
+
+        except Exception as e:
+            logging.error(f"Error posting content: " + str(e) + " " + str(type(e)))
+
+    async def start(self):
+        '''Start the content manager.'''
+        try:
+            await broadcast_message("Starting content manager...")
+            # Run in asyncio task
+            task = asyncio.create_task(self.toot_content())
+            self.toot_tasklist.append(task)
+            await asyncio.gather(*self.toot_tasklist)
+
+        except Exception as e:
+            logging.error(f"Failed to start content manager: {e}")
+
+    async def stop(self):
+        '''Stop the content manager.'''
+        await broadcast_message("Stopping content manager...")
+        for task in self.toot_tasklist:
+            task.cancel()
+        # Wait for all tasks to be cancelled, ignoring cancellation exceptions
+        await asyncio.gather(*self.toot_tasklist, return_exceptions=True)
+        self.toot_tasklist = []
 
 # Hashtag Listener
 class HashtagListener(StreamListener):
@@ -545,6 +566,43 @@ async def stop_streaming():
         return jsonify({'status': 'streaming stopped'})
     return jsonify({'error': 'Streaming manager not initialized'}), 400
 
+# Start content manager
+@app.route('/start_content', methods=['POST'])
+async def start_content():
+    '''Start the content manager.'''
+    if content_manager:
+        load_config()
+        await update_settings('postContent', 'True')
+        await content_manager.start()
+        return jsonify({'status': 'content started'})
+    return jsonify({'error': 'Content manager not initialized'}), 400
+
+# Stop content manager
+@app.route('/stop_content', methods=['POST'])
+async def stop_content():
+    '''Stop the content manager.'''
+    if content_manager:
+        load_config()
+        await update_settings('postContent', 'False')
+        await content_manager.stop()
+        return jsonify({'status': 'content stopped'})
+    return jsonify({'error': 'Content manager not initialized'}), 400
+
+# Serve images
+@app.route('/content/images/<path:filename>')
+async def serve_image(filename):
+    """Serve files from the content/images/ directory."""
+    if ".." in filename or filename.startswith("/"):
+        # Basic security check to prevent accessing files outside the directory
+        abort(404)
+    
+    full_path = os.path.join(config['content_path'], filename)
+    if not os.path.isfile(full_path):
+        # If the file does not exist, return a 404 error
+        abort(404)
+
+    return await send_from_directory(config['content_path'], filename)
+
 # WebSocket route
 @app.websocket("/ws")
 async def ws():
@@ -575,16 +633,16 @@ async def main():
     # Who Am I
     logging.info('....' + user.username + ' successfully logged in.')
 
-    # Content tooting
-    #if postContent == '1':
-    #    await toot_content(mastodon, interval)
-
     # Get event loop
     loop = asyncio.get_event_loop()
 
     # Start the streaming manager
     global streaming_manager
     streaming_manager = StreamingManager(mastodon, loop)
+
+    # Start the content manager
+    global content_manager
+    content_manager = ContentManager(mastodon, config, loop)
 
     # Run the Quart app
     await app.run_task()

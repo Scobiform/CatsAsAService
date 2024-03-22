@@ -137,15 +137,6 @@
     <hr>
 
     <h3>Toot content</h3>
-    <legend>{{ localization.en.legend.toot_content }}</legend>
-    <label class="switch" for="postContent">Post Content:
-        <input type="hidden" id="postContentHidden" name="postContent" value="0">
-        <input type="checkbox" id="postContent" name="postContent" value="1" aria-label="Post Content" 
-                {{ "checked" if configuration.postContent == '1' else "" }}
-        >
-        <div class="slider"></div>
-    </label>
-
     <!-- Slider range for interval in seconds from 0 to 1 day -->
     <label for="interval">Interval:</label>
     <input type="range" id="interval" name="interval" min="420" max="86400" step="1" value="{{ configuration.interval }}">

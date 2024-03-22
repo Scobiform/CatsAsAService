@@ -144,10 +144,10 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
     overflow-y: scroll;
     scrollbar-color: var(--c) var(--k);
     scrollbar-width: thin;
-    width: -moz-available;
-    width: -webkit-fill-available;
+    width: inherit;
     word-wrap: break-word;
     padding: 0.42rem;
+    scroll-behavior: smooth;
   }
   
   #messages img {
@@ -209,8 +209,6 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
   .tabcontent {
     border: 1px solid var(--k);
     border-top: none;
-    height: 100vh;
-    width: 21rem;
   }
 
 /* UI Elements */

@@ -9,13 +9,13 @@
         "format": "%(asctime)s - %(levelname)s - %(message)s",
         "level": "INFO"
     },
-    "stream_running": "running",
-    "isBot": "True",
-    "hasAltText": "True",
+    "stream_running": "stopped",
+    "isBot": "False",
+    "hasAltText": "False",
     "skipHashtags": "False",
-    "hasBadWord": "True",
-    "hasBadHashtag": "True",
-    "hasTooManyHashtags": "True",
+    "hasBadWord": "False",
+    "hasBadHashtag": "False",
+    "hasTooManyHashtags": "False",
     "hasMedia": "True",
     "hashtags": [
         "CatsOfMastodon",
@@ -38,7 +38,11 @@
         "\u0e41\u0e21\u0e27",
         "\u043a\u043e\u0442",
         "\u043a\u043e\u0448\u043a\u0430",
-        "CatFacts"
+        "CatFacts",
+        "Catstodon",
+        "FelineFriday",
+        "AdoptCat",
+        "catlovers"
     ],
     "bad_words": [
         "shop",
@@ -84,11 +88,13 @@
         "scobiform"
     ],
     "vip_accounts": [
-        "RandomCatFacts"
+        "_________0__0_________",
+        "___"
     ],
-    "postContent": "False",
-    "lastPosetd": "76941",
-    "interval": "18243",
+    "postContent": "True",
+    "content_path": "content/images/",
+    "last_posted": 100245,
+    "interval": "7",
     "heartbeatIcon": " ",
     "tootPattern": "#CatsOfMastodon",
     "tootAltTextPattern": "#Cat"

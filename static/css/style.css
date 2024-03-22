@@ -9,6 +9,7 @@
   --ff: #ffffff;
   /*  */
   --maxHeight: 91vh;
+  --rightPanelWidth: 49vw;
   --font: monospace;
 }
 
@@ -95,11 +96,11 @@ li a:hover {
   top: 0;
   font-size: small;
   height: 100vh;
-  width: 93rem;
+  width: 49vw;
 }
 
 .footer {
-  display: flex;
+  display: none;
   justify-content: space-between;
   align-items: center;
   padding: 20px;

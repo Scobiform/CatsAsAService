@@ -1,30 +1,60 @@
 <button id="toggleButton" onclick="toggleFunction()">
-  {% if configuration.stream_running == 'running' %}■{% else %}▶{% endif %}
+  {% if configuration.stream_running == 'stopped' %}■{% else %}▶{% endif %}
+</button>
+
+<button id="togglePostContent" onclick="togglePostContent()">
+  {% if configuration.postContent == 'False' %}🔘{% else %}🆙{% endif %}
 </button>
 
 <script>
+
   async function toggleFunction() {
     const button = document.getElementById('toggleButton');
-    const isRunning = button.innerHTML.trim() === '■';
+    const isRunning = button.textContent.includes('▶');
 
     if (!isRunning) {
-      button.innerHTML = '■';
+      button.innerHTML = '▶';
       const response = await fetch('/start_streaming', { method: 'POST' });
       if (response.ok) {
         console.log('Streaming started');
-        button.innerHTML = '■';
+        button.innerHTML = '▶';
       } else {
         console.error('Failed to start streaming');
       }
     } else {
-      button.innerHTML = '▶';
+      button.innerHTML = '■';
       const response = await fetch('/stop_streaming', { method: 'POST' });
       if (response.ok) {
         console.log('Streaming stopped');
-        button.innerHTML = '▶';
+        button.innerHTML = '■';
       } else {
         console.error('Failed to stop streaming');
       }
+    }
+  }
+
+  async function togglePostContent() {
+    const button = document.getElementById('togglePostContent');
+    const isTooting = button.textContent.includes('🆙');
+
+    if (!isTooting) {
+        button.innerHTML = '🆙';
+        const response = await fetch('/start_content', { method: 'POST' });
+        if (response.ok) {
+            console.log('Content tooting started');
+            button.innerHTML = '🆙';
+        } else {
+            console.error('Failed to start content tooting');
+        }
+    } else {
+        button.innerHTML = '🔘';
+        const response = await fetch('/stop_content', { method: 'POST' });
+        if (response.ok) {
+            console.log('Content tooting stopped');
+            button.innerHTML = '🔘';
+        } else {
+            console.error('Failed to stop content tooting');
+        }
     }
   }
 </script>
