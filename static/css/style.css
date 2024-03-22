@@ -115,6 +115,11 @@ li a:hover {
   filter: contrast(0.5)
 }
 
+.userAvatar img {
+  width: 7rem;
+  height: 7rem;
+}
+
 nav {
   width: 7vw;
   margin: 0 auto;

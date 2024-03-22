@@ -31,6 +31,7 @@ input[type="text" i], input[type="password" i], input[type="email" i] {
     color: var(--00);
     border: 1px var(--k) solid;
     padding: 0.21rem;
+    width: -moz-available;
     width: -webkit-fill-available;
 }
 
@@ -46,14 +47,13 @@ input[type="textarea" i] {
     color: var(--00);
     border: 1px var(--k) solid;
     padding: 0.21rem;
-    width: -webkit-fill-available;
 }
 
 input[type="range" i] {
     -webkit-appearance: none;
     appearance: none;
     background-color: white;
-    width: -webkit-fill-available;
+    width: -moz-available;
 }
 
 input[type=range]::-webkit-slider-thumb {
@@ -65,7 +65,6 @@ input[type=range]::-webkit-slider-thumb {
     cursor: pointer; 
 }
 
-
 input[type="submit" i], input[type="reset" i] {
     appearance: auto;
     user-select: none;
@@ -76,7 +75,6 @@ input[type="submit" i], input[type="reset" i] {
     padding-block: 0.21rem;
     border: none;
     font-size: smaller;
-    width: -webkit-fill-available;
     height: 42px;
 }
 
@@ -85,6 +83,8 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
     color: var(--m);
     border: 1px var(--m) solid;
     cursor: pointer;
+    width: -webkit-fill-available;
+    width: -moz-available;
 }
 
 /* Thread worker */
@@ -119,6 +119,7 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
 }
 
 .accountInformation img {
+    width: -moz-available;
     width: -webkit-fill-available;
     height: auto;
 }
@@ -130,6 +131,7 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
     overflow-y: scroll;
     scrollbar-color: var(--c) var(--k);
     scrollbar-width: thin;
+    width: -moz-available;
     width: -webkit-fill-available;
     word-wrap: break-word;
     padding: 0.42rem;
@@ -137,12 +139,14 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
   
   #messages img {
     width: inherit;
+    width: -moz-available;
     width: -webkit-fill-available;
     height: auto;
   }
   
   #message video {
     width: inherit;
+    width: -moz-available;
     width: -webkit-fill-available;
     height: auto;
   }
