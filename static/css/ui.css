@@ -15,7 +15,7 @@ legend {
     margin-bottom: 1.4rem;
     background: var(--c);
     color: var(--ff);
-    font-size: smaller;
+    font-size: medium;
 }
 
 hr {
@@ -23,6 +23,16 @@ hr {
     height: 0;
     background: var(--k);
     margin: 0.21rem;
+}
+
+textarea {
+    appearance: auto;
+    background-color: var(--k);
+    color: var(--00);
+    border: 1px var(--k) solid;
+    padding: 0.21rem;
+    width: -moz-available;
+    width: -webkit-fill-available;
 }
 
 input[type="text" i], input[type="password" i], input[type="email" i] {
@@ -52,8 +62,9 @@ input[type="textarea" i] {
 input[type="range" i] {
     -webkit-appearance: none;
     appearance: none;
-    background-color: white;
+    background-color: var(--k);
     width: -moz-available;
+    width: -webkit-fill-available;
 }
 
 input[type=range]::-webkit-slider-thumb {
@@ -69,18 +80,20 @@ input[type="submit" i], input[type="reset" i] {
     appearance: auto;
     user-select: none;
     text-align: center;
-    background-color: var(--m);
+    background-color: var(--c);
     color: var(--k);
     white-space: pre;
     padding-block: 0.21rem;
     border: none;
     font-size: smaller;
     height: 42px;
+    width: -webkit-fill-available;
+    width: -moz-available;
 }
 
 input[type="submit" i]:hover, input[type="reset" i]:hover {
-    background-color: var(--k);
-    color: var(--m);
+    background-color: var(--m);
+    color: var(--ff);
     border: 1px var(--m) solid;
     cursor: pointer;
     width: -webkit-fill-available;
@@ -223,7 +236,7 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
+  background-color: var(--k);
   -webkit-transition: .4s;
   transition: .4s;
 }
@@ -241,11 +254,11 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
 }
 
 input:checked + .slider {
-  background-color: #2196F3;
+  background-color: var(--m);
 }
 
 input:focus + .slider {
-  box-shadow: 0 0 1px #2196F3;
+  box-shadow: 0 0 1px var(--m);
 }
 
 input:checked + .slider:before {
@@ -257,7 +270,7 @@ input:checked + .slider:before {
 /* Adding new input elements */
 .add-icon {
   cursor: pointer;
-  font-size: smaller;
+  font-size: medium;
   margin-left: 8px;
   float: right;
 }

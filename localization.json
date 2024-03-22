@@ -7,7 +7,12 @@
         "bot_settings": "Set a heartbeat icon for your bot. You can use any emoji. For example: 😻",
         "hashtags": "Add hashtags to your stream manager. Each hashtag will start its own stream and broadcast messages to the messages tab.",
         "bad_words": "Filter-out messages containing these words.",
-        "bad_hashtags": "Filter-out messages containing these hashtags."
+        "bad_hashtags": "Filter-out messages containing these hashtags.",
+        "bad_accounts": "Filter-out messages from these accounts.",
+        "toot_content": "Activate to toot content",
+        "toot_pattern": "Here you can build your pattern for your content toots.",
+        "save_settings": "Save settings",
+        "alt_text_pattern": "Build your alt-text pattern for your toots."
       }
     },
     "de": {
@@ -18,7 +23,12 @@
         "bot_settings": "Setze ein Herzschlag-Icon für deinen Bot. Du kannst jedes Emoji verwenden. Zum Beispiel: 😻",
         "hashtags": "Füge Hashtags zu deinem Stream-Manager hinzu. Jeder Hashtag startet seinen eigenen Stream und sendet Nachrichten an den Nachrichten-Tab.",
         "bad_words": "Filtere Nachrichten mit diesen Wörtern aus.",
-        "bad_hashtags": "Filtere Nachrichten mit diesen Hashtags aus."
+        "bad_hashtags": "Filtere Nachrichten mit diesen Hashtags aus.",
+        "bad_accounts": "Filtere Nachrichten von diesen Accounts aus.",
+        "toot_content": "Aktiviere um Inhalte zu tooten",
+        "toot_pattern": "Hier kannst du dein Muster für deine Content-Toots erstellen.",
+        "save_settings": "Einstellungen speichern",
+        "alt_text_pattern": "Erstelle dein Muster für den Alternativtext deiner Toots."
       }
     },
     "ru": {
@@ -29,7 +39,12 @@
         "bot_settings": "Установите значок сердца для вашего бота. Вы можете использовать любое эмодзи. Например: 😻",
         "hashtags": "Добавьте хэштеги в ваш менеджер потоков. Каждый хэштег запускает свой собственный поток и транслирует сообщения во вкладку сообщений.",
         "bad_words": "Фильтруйте сообщения, содержащие эти слова.",
-        "bad_hashtags": "Фильтруйте сообщения, содержащие эти хэштеги."
+        "bad_hashtags": "Фильтруйте сообщения, содержащие эти хэштеги.",
+        "bad_accounts": "Фильтруйте сообщения от этих аккаунтов.",
+        "toot_content": "Активировать для тутов контента",
+        "toot_pattern": "Здесь вы можете создать шаблон для ваших тутов контента.",
+        "save_settings": "Сохранить настройки",
+        "alt_text_pattern": "Создайте шаблон для альтернативного текста ваших тутов."
       }
     }
 }

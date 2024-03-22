@@ -10,6 +10,13 @@
         "level": "INFO"
     },
     "stream_running": "running",
+    "isBot": "True",
+    "hasAltText": "True",
+    "skipHashtags": "False",
+    "hasBadWord": "True",
+    "hasBadHashtag": "True",
+    "hasTooManyHashtags": "True",
+    "hasMedia": "True",
     "hashtags": [
         "CatsOfMastodon",
         "Caturday",
@@ -27,10 +34,11 @@
         "WhiskersWednesday",
         "TunaTuesday",
         "AllCatsAreBeautiful",
-        "Kadi",
+        "kedi",
         "\u0e41\u0e21\u0e27",
         "\u043a\u043e\u0442",
-        "\u043a\u043e\u0448\u043a\u0430"
+        "\u043a\u043e\u0448\u043a\u0430",
+        "CatFacts"
     ],
     "bad_words": [
         "shop",
@@ -73,9 +81,12 @@
     ],
     "bad_accounts": [
         "UnitedSpaceCats",
-        "____"
+        "scobiform"
     ],
-    "postContent": "0",
+    "vip_accounts": [
+        "RandomCatFacts"
+    ],
+    "postContent": "False",
     "lastPosetd": "76941",
     "interval": "18243",
     "heartbeatIcon": " ",

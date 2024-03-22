@@ -16,6 +16,78 @@
     <input type="password" id="password" name="password" current-password="{{ configuration.password }}" value="{{ configuration.password}}">
 
     <h2>Bot settings</h2>
+    <legend>Check if the account is a bot</legend>
+    <label class="switch" for="isBot">Is Bot:
+        <input type="hidden" id="isBotHidden" name="isBot" value="False">
+        <input type="checkbox" id="isBot" name="isBot" value="True" aria-label="Is Bot" 
+                {{ "checked" if configuration.isBot == 'True' else "" }}
+        >
+        <div class="slider"></div>
+    </label>
+
+    <hr>
+
+    <legend>Check if there is media</legend>
+    <label class="switch" for="hasMedia">Has Media:
+        <input type="hidden" id="hasMediaHidden" name="hasMedia" value="False">
+        <input type="checkbox" id="hasMedia" name="hasMedia" value="True" aria-label="Has Media" 
+                {{ "checked" if configuration.hasMedia == 'True' else "" }}
+        >
+        <div class="slider">
+        </div>
+    </label>
+
+    <hr>
+
+    <legend>Check if there is alt text</legend>
+    <label class="switch" for="hasAltText">Has Alt Text:
+        <input type="hidden" id="hasAltTextHidden" name="hasAltText" value="False">
+        <input type="checkbox" id="hasAltText" name="hasAltText" value="True" aria-label="Has Alt Text" 
+                {{ "checked" if configuration.hasAltText == 'True' else "" }}
+        >
+        <div class="slider">
+        </div>
+    </label>
+
+    <hr>
+
+    <legend>Skip if too many hashtags</legend>
+    <label class="switch" for="hasTooManyHashtags">Skip Hashtags:
+        <input type="hidden" id="hasTooManyHashtagsHidden" name="hasTooManyHashtags" value="False">
+        <input type="checkbox" id="hasTooManyHashtags" name="hasTooManyHashtags" value="True" aria-label="Skip Hashtags" 
+                {{ "checked" if configuration.hasTooManyHashtags == 'True' else "" }}
+        >
+        <div class="slider">
+        </div>
+    </label>
+
+    <hr>
+
+    <legend>Check if there is a bad word</legend>
+    <label class="switch" for="hasBadWord">Has Bad Word:
+        <input type="hidden" id="hasBadWordHidden" name="hasBadWord" value="False">
+        <input type="checkbox" id="hasBadWord" name="hasBadWord" value="True" aria-label="Has Bad Word" 
+                {{ "checked" if configuration.hasBadWord == 'True' else "" }}
+        >
+        <div class="slider">
+        </div>
+    </label>
+
+    <hr>
+
+    <legend>Check if there is a bad hashtag</legend>
+    <label class="switch" for="hasBadHashtag">Has Bad Hashtag:
+        <input type="hidden" id="hasBadHashtagHidden" name="hasBadHashtag" value="False">
+        <input type="checkbox" id="hasBadHashtag" name="hasBadHashtag" value="True" aria-label="Has Bad Hashtag" 
+                {{ "checked" if configuration.hasBadHashtag == 'True' else "" }}
+        >
+        <div class="slider">
+        </div>
+    </label>
+
+    <hr>
+
+
     <legend>{{ localization.en.legend.bot_settings }}</legend>
     <label for="heartbeatIcon">Heartbeat Icon:</label>
     <input type="text" id="heartbeatIcon" name="heartbeatIcon" aria-label="Heartbeat Icon" value="{{ configuration.heartbeatIcon }}">
@@ -54,6 +126,7 @@
     <hr>
 
     <h3>Bad accounts:</h3>
+    <legend>{{ localization.en.legend.bad_accounts }}</legend>
         <div id="bad_accountsContainer">
         {% for bad_account in configuration.bad_accounts %}
             <input type="text" name="bad_accounts[]" value="{{ bad_account }}" aria-label="Bad accounts">
@@ -64,7 +137,7 @@
     <hr>
 
     <h3>Toot content</h3>
-    <legend>Switch on content tooting</legend>
+    <legend>{{ localization.en.legend.toot_content }}</legend>
     <label class="switch" for="postContent">Post Content:
         <input type="hidden" id="postContentHidden" name="postContent" value="0">
         <input type="checkbox" id="postContent" name="postContent" value="1" aria-label="Post Content" 
@@ -82,38 +155,45 @@
     <br>
 
     <label for="tootPattern">Toot Pattern:</label>
-    <input type="textarea" id="tootPattern" name="tootPattern" value="{{ configuration.tootPattern }}" aria-label="Toot Pattern">
+    <legend>{{ localization.en.legend.toot_pattern }}</legend>
+    <textarea id="tootPattern" name="tootPattern" aria-label="Toot Pattern" rows="4" cols="50">{{ configuration.tootPattern }}</textarea>
 
     <br>
     <br>
 
     <label for="tootAltTextPattern">AltText Pattern:</label>
-    <input type="textarea" id="tootAltTextPattern" name="tootAltTextPattern" value="{{ configuration.tootAltTextPattern }}" aria-label="tootAltTextPattern">
+    <legend>{{ localization.en.legend.alt_text_pattern }}</legend>
+    <textarea id="tootAltTextPattern" name="tootAltTextPattern" aria-label="tootAltTextPattern" rows="4" cols="50">{{ configuration.tootAltTextPattern }}</textarea>
 
     <br>
     <br>
 
-    <input type="submit" value="Save Settings" aria-label="Save form">
+    <input type="submit" value="{{ localization.en.legend.save_settings }}" aria-label="Save form">
 
     <br>
     <br>
+
 </form>
 
 
 <script>
     // Function to update the hidden input value based on the checkbox state
     document.addEventListener('DOMContentLoaded', function() {
-    const checkbox = document.getElementById('postContent');
-    const hiddenInput = document.getElementById('postContentHidden');
+    // Find all checkboxes with the 'switch' class
+    const switches = document.querySelectorAll('.switch input[type="checkbox"]');
+    
+    switches.forEach(function(switchElem) {
+        // Set the corresponding hidden input's value based on the checkbox's checked state
+        const hiddenInput = document.getElementById(switchElem.id + 'Hidden');
+        hiddenInput.value = switchElem.checked ? 'True' : 'False';
 
-    // Initial check to set the hidden input value based on the checkbox's state
-    hiddenInput.value = checkbox.checked ? '1' : '0';
-
-    checkbox.addEventListener('change', function() {
-        // When the checkbox state changes, update the hidden input accordingly
-        hiddenInput.value = this.checked ? '1' : '0';
+        // Add an event listener to each switch
+        switchElem.addEventListener('change', function() {
+            // Update the hidden input's value when the checkbox is toggled
+            hiddenInput.value = this.checked ? 'True' : 'False';
+        });
     });
-    });
+});
 
     // Function to add input fields to the form
     function addInput(arrayName) {
