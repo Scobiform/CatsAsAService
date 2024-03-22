@@ -12,7 +12,7 @@ socket.addEventListener('open', function (event) {
 socket.addEventListener('message', function (event) {
   //console.log('Message from server ', event.data);
   document.getElementById('messages').innerHTML += event.data;
-  scrollToBottom();
+  //scrollToBottom();
 });
 
 function scrollToBottom() {
@@ -41,3 +41,22 @@ function openTab(evt, tabName) {
   document.getElementById(tabName).style.display = "block";
   evt.currentTarget.className += " active";
 }
+
+// Lazy load images
+document.addEventListener("DOMContentLoaded", function() {
+  var lazyLoadImages = document.querySelectorAll('img.lazy-load');
+  var imageObserver = new IntersectionObserver(function(entries, observer) {
+      entries.forEach(function(entry) {
+          if (entry.isIntersecting) {
+              var image = entry.target;
+              image.src = image.dataset.src;
+              image.classList.remove('lazy-load');
+              imageObserver.unobserve(image);
+          }
+      });
+  });
+
+  lazyLoadImages.forEach(function(image) {
+      imageObserver.observe(image);
+  });
+});

@@ -455,6 +455,19 @@ async def get_account():
     html = f'<div class="userAvatar"><img src="{user.avatar}" alt="{user.username}" /></div>'
     return html
 
+# Get media from content_path
+async def get_media():
+    ''' Get the media files from the content_path and return them as components.
+    
+    Returns:
+        list: A list of media files.
+    '''
+    media = []
+    for file in os.listdir(config['content_path']):
+        if file.endswith('.jpg') or file.endswith('.png') or file.endswith('.gif') or file.endswith('.mp4'):
+            media.append(file)
+    return media
+
 # Get any file as a component
 async def get_any_file_as_component(file):
     ''' Get the content of a file and return it as a component.'''
@@ -485,11 +498,15 @@ async def index():
 
     logo = await get_any_file_as_component('components/logo.svg')
 
+    # Get media
+    media_list = await get_media()
+
     return await render_template('index.html',
         accountInfo=accountInfo,
         settings=settings,
         workerStatus=workerStatus,
-        logo=logo
+        logo=logo,
+        media_list=media_list
     )
 
 # Submit settings

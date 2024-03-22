@@ -175,6 +175,15 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
     padding: 0.42rem;
 }
 
+.media {
+  height: var(--maxHeight);
+  overflow-x: hidden;
+  overflow-y: scroll;
+  scrollbar-color: var(--c) var(--k);
+  scrollbar-width: thin;
+  padding: 0.42rem;
+}
+
 /* Content tabs */
 .tab {
     overflow: hidden;

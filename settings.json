@@ -9,7 +9,7 @@
         "format": "%(asctime)s - %(levelname)s - %(message)s",
         "level": "INFO"
     },
-    "stream_running": "stopped",
+    "stream_running": "running",
     "isBot": "False",
     "hasAltText": "False",
     "skipHashtags": "False",
@@ -91,9 +91,9 @@
         "_________0__0_________",
         "___"
     ],
-    "postContent": "True",
+    "postContent": "False",
     "content_path": "content/images/",
-    "last_posted": 100265,
+    "last_posted": 102257,
     "interval": "7",
     "heartbeatIcon": " ",
     "tootPattern": "#CatsOfMastodon",
