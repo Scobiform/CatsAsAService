@@ -556,7 +556,7 @@ async def login():
     hashed_password = users.get(username)
     if hashed_password and check_password(hashed_password, password):
         user = AuthUser(username)
-        login_user(user)  # Ensure login_user is properly adapted for async context if necessary
+        login_user(user)
         return await index()
     else:
         return 'Login Failed', 401
