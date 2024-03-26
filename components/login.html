@@ -1,0 +1,48 @@
+<!-- Account Button -->
+<button id="accountButton" style="position: fixed; top: 0; right: 0; z-index: 1001;" class="uiFlyout">☸</button>
+<!-- Close Menu Button (Initially hidden) -->
+<button id="closeMenuButton" class="flyoutMenuButton uiFlyout" onclick="closeFlyoutMenu()" style="position: fixed; top: 0; right: 0; z-index: 1001; display: none;">☸</button>
+
+<!-- Flyout Menu -->
+<div id="flyoutMenu" class="rightFlyoutMenu" style="display: none;">
+    <div class="flyoutMenu">
+        {% if current_user.is_authenticated %}
+        <div>Welcome, {{ current_user.auth_id }}!</div>
+        <div><a href="/logout">Logout</a></div>
+        {% else %}
+            <div class="login">
+                <form action="/login" method="post">
+                    <input type="text" name="username" placeholder="Username" required aria-label="Username">
+                    <input type="password" name="password" placeholder="Password" required aria-label="Password">
+                    <button type="submit">Login</button>
+                </form>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+    document.getElementById('accountButton').addEventListener('click', function() {
+        document.getElementById('flyoutMenu').style.display = 'block';
+        toggleButtons();
+    });
+
+    function closeFlyoutMenu() {
+        document.getElementById('flyoutMenu').style.display = 'none';
+        toggleButtons();
+    }
+
+    function toggleButtons() {
+        const accountButton = document.getElementById('accountButton');
+        const closeMenuButton = document.getElementById('closeMenuButton');
+        if (accountButton.style.display === 'none') {
+            accountButton.style.display = 'block';
+            closeMenuButton.style.display = 'none';
+        } else {
+            accountButton.style.display = 'none';
+            closeMenuButton.style.display = 'block';
+        }
+    }
+</script>
+
+

@@ -1,8 +1,8 @@
 {
     "app_name": "CaaS - CatsAsAService",
     "instance_url": "mastodon.social",
-    "email": "",
-    "password": "",
+    "mastodon_email": "",
+    "mastodon_password": "",
     "logging": {
         "filename": "CaaS.log",
         "filemode": "a",
@@ -91,9 +91,9 @@
         "_________0__0_________",
         "___"
     ],
-    "postContent": "False",
+    "postContent": "True",
     "content_path": "content/images/",
-    "last_posted": 102257,
+    "last_posted": 102644,
     "interval": "7",
     "heartbeatIcon": " ",
     "tootPattern": "#CatsOfMastodon",

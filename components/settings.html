@@ -9,11 +9,12 @@
 
     <h2>Authentication</h2>
     <legend>{{ localization.en.legend.authentication }}</legend>
-    <label for="email">Email:</label>
-    <input type="text" id="email" name="email" value="{{ configuration.email }}">
-
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" current-password="{{ configuration.password }}" value="{{ configuration.password}}">
+    <input style="display:none" type="text" name="fake_user_name_ignore" id="fake_user_name_ignore" autocomplete="off" aria-hidden="true" aria-label="Fake User Name">
+    <input style="display:none" type="password" name="fake_password_ignore" id="fake_password_ignore" autocomplete="off" aria-hidden="true" aria-label="Fake Password">
+    <label for="mastodon_email">Mastodon Email:</label>
+    <input type="text" id="mastodon_email" name="mastodon_email" value="{{ configuration.mastodon_email }}" autocomplete="off" aria-label="Mastodon Email">
+    <label for="mastodon_password">Mastodon Password:</label>
+    <input type="password" id="mastodon_password" name="mastodon_password" current-password="{{ configuration.mastodon_password }}" value="{{ configuration.mastodon_password}}" autocomplete="off">
 
     <h2>Bot settings</h2>
     <legend>Check if the account is a bot</legend>

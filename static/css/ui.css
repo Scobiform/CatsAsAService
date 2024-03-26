@@ -281,3 +281,36 @@ input:checked + .slider:before {
   margin-left: 8px;
   float: right;
 }
+
+/* 
+    User | Flyout menu 
+
+*/
+
+.uiFlyout{
+  font-size: 2.8rem;
+  color: var(--ff);
+  cursor: pointer;
+  background-color: var(--m);
+  border: none;
+}
+
+.rightFlyoutMenu {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 21vw;
+  height: 100%;
+  background-color: var(--k);
+  transition: right 0.3s ease;
+}
+
+.flyoutMenu {
+  padding: 20px;
+  margin-top: 4.2rem;
+}
+
+.flyoutMenuButton {
+  display: block;
+  margin: 10px 0;
+}

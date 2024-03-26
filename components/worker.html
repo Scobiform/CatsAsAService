@@ -10,23 +10,21 @@
 
   async function toggleFunction() {
     const button = document.getElementById('toggleButton');
-    const isRunning = button.textContent.includes('▶');
+    const isRunning = button.textContent.includes('■');
 
     if (!isRunning) {
-      button.innerHTML = '▶';
+      button.innerHTML = '■';
       const response = await fetch('/start_streaming', { method: 'POST' });
       if (response.ok) {
         console.log('Streaming started');
-        button.innerHTML = '▶';
       } else {
         console.error('Failed to start streaming');
       }
     } else {
-      button.innerHTML = '■';
+      button.innerHTML = '▶';
       const response = await fetch('/stop_streaming', { method: 'POST' });
       if (response.ok) {
         console.log('Streaming stopped');
-        button.innerHTML = '■';
       } else {
         console.error('Failed to stop streaming');
       }

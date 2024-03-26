@@ -10,6 +10,10 @@ from threading import Thread
 from datetime import date
 from concurrent.futures import ThreadPoolExecutor
 from quart import Quart, abort, render_template, send_from_directory, websocket, render_template_string, request, jsonify
+from quart_auth import (
+    AuthUser, current_user, login_required, login_user, logout_user, QuartAuth
+)
+from quart_bcrypt import Bcrypt
 from mastodon import Mastodon
 from mastodon.streaming import StreamListener, CallbackStreamListener
 from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayError, MastodonServiceUnavailableError, MastodonNetworkError, MastodonAPIError, MastodonInternalServerError, MastodonIllegalArgumentError
@@ -20,6 +24,8 @@ from mastodon.Mastodon import MastodonMalformedEventError, MastodonBadGatewayErr
 # The web interface will allow you to monitor messages from mastodon and the bot, 
 # start and stop the bot, change settings, and organize the content archive.
 # http://localhost:5000
+
+# THIS IS ONLY FOR DEVELOPMENT
 
 # Requirements:
 # Mastodon.py (pip install Mastodon.py) - MIT License - https://github.com/halcy/Mastodon.py
@@ -33,13 +39,16 @@ config = {}
 # Localization
 localization = {}
 
+# Users
+users = {}
+
 # Setting up threads
 tasks = [] # List of threads we will start
 
 # Load the configuration from the settings.json file
 def load_config():
     try:
-        with open('settings.json', 'r', encoding='utf-8') as config_file:
+        with open('config/settings.json', 'r', encoding='utf-8') as config_file:
             config = json.load(config_file)
             print("Configuration loaded successfully.")
             return config
@@ -57,7 +66,7 @@ config = load_config()
 # Load the localization from the localization.json file
 def load_localization():
     try:
-        with open('localization.json', 'r', encoding='utf-8') as localization_file:
+        with open('config/localization.json', 'r', encoding='utf-8') as localization_file:
             localization = json.load(localization_file)
             print("Localization loaded successfully.")
             return localization
@@ -72,11 +81,18 @@ def load_localization():
 # Load the localization
 localization = load_localization()
 
+# Load the users from the users.json file
+# Load users from JSON file
+with open('config/users.json') as f:
+    user_data = json.load(f)
+    users = user_data['users']
+    print(users)
+
 # Mastodon configuration
 app_name = config['app_name']
 instance_url = config['instance_url']
-email = config['email']
-password = config['password']
+email = config['mastodon_email']
+password = config['mastodon_password']
 
 # UI configuration
 heartbeatIcon = config['heartbeatIcon']
@@ -117,12 +133,12 @@ def update_config(configuraion, new_data):
     # Update the existing configuration with new data
     configuraion.update(new_data)
     # Save the updated configuration back to the file
-    with open('settings.json', 'w', encoding='utf-8') as config_file:
+    with open('config/settings.json', 'w', encoding='utf-8') as config_file:
         json.dump(configuraion, config_file, indent=4)
 
 # Update one key value in the settings.json file
 async def update_settings(key, value):
-    settings_file = 'settings.json'
+    settings_file = 'config/settings.json'
     try:
         # Attempt to read the current settings
         async with aiofiles.open(settings_file, mode='r', encoding='utf-8') as file:
@@ -140,9 +156,37 @@ async def update_settings(key, value):
     except Exception as e:
         logging.error(f"Failed to update settings: {e}")
 
+# Get or Create app.seccret with a unique app.secret_key
+# return only the string
+def get_or_create_app_secret():
+    if os.path.exists('app.secret'):
+        with open('app.secret', 'r') as file:
+            return file.read()
+    else:
+        secret_key = generate_secret_key()
+        print(secret_key)
+        with open('app.secret', 'w', encoding='utf-8') as file:
+            file.write(secret_key)
+        return secret_key
+    
+# Generate unique secret key
+def generate_secret_key():
+    return os.urandom(24).hex()
+
 # Quart app
 app = Quart(__name__)
-connections = set()
+app.secret_key = get_or_create_app_secret() # app.secret_key
+QuartAuth(app)
+bcrypt = Bcrypt(app)
+connections = set() # Websocket connections
+
+# Hash password
+def hash_password(password):
+    return bcrypt.generate_password_hash(password).decode('utf-8')
+
+# Check password
+def check_password(hashed_password, password):
+    return bcrypt.check_password_hash(hashed_password, password)
 
 # Create Mastodon app and get user credentials
 def create_secrets():
@@ -276,10 +320,20 @@ class HashtagListener(StreamListener):
         self.loop = loop
         self.heartbeatIcon = config['heartbeatIcon']
         self.config = config
+        self.ä = None
 
     # Called when a new status arrives
     def on_update(self, status):
 
+        if self.last_id == status.id:
+            logging.info('....already boosted')
+            return
+        
+        # Set the last ID
+        self.last_id = status.id
+        print(f"Status ID: {self.last_id}")
+
+        # Log the status
         message = f"<br>{status.account.username} tooted: {status.content} <br>"
         asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
 
@@ -450,6 +504,13 @@ async def get_worker_status():
         worker = await file.read()
     return await render_template_string(worker, configuration=config)
 
+# Get login component
+async def get_login():
+    ''' Get the login component.'''
+    async with aiofiles.open('components/login.html', 'r', encoding='utf-8') as file:
+        login = await file.read()
+    return await render_template_string(login)
+
 # Render Account Information
 async def get_account():
     html = f'<div class="userAvatar"><img src="{user.avatar}" alt="{user.username}" /></div>'
@@ -483,10 +544,32 @@ async def broadcast_message(message):
         except Exception as e:
             print(f"Error sending message: {e}")
 
+# Login route
+@app.route('/login', methods=['POST'])
+async def login():
+    form_data = await request.form
+    username = form_data.get('username')
+    password = form_data.get('password')
+
+    logging.info("Login attempt for user: %s", username)
+
+    hashed_password = users.get(username)
+    if hashed_password and check_password(hashed_password, password):
+        user = AuthUser(username)
+        login_user(user)  # Ensure login_user is properly adapted for async context if necessary
+        return await index()
+    else:
+        return 'Login Failed', 401
+
+# Logout route
+@app.route('/logout', methods=['POST'])
+async def logout():
+    logout_user()
+    return jsonify({'status': 'Logged out successfully'})
+
 # Route for the index page
 @app.route('/')
 async def index():
-
     # Get Account Information
     accountInfo = await get_account()
 
@@ -496,21 +579,27 @@ async def index():
     # Gwt Worker Status
     workerStatus = await get_worker_status()
 
+    # Get app logo
     logo = await get_any_file_as_component('components/logo.svg')
 
     # Get media
     media_list = await get_media()
+
+    # Get login component
+    login = await get_login()
 
     return await render_template('index.html',
         accountInfo=accountInfo,
         settings=settings,
         workerStatus=workerStatus,
         logo=logo,
-        media_list=media_list
+        media_list=media_list,
+        login=login
     )
 
 # Submit settings
 @app.route('/submit_settings', methods=['POST'])
+@login_required
 async def submit_settings():
     '''Submit the settings form and update the configuration.
     
@@ -544,6 +633,7 @@ async def submit_settings():
 
 # Start streaming
 @app.route('/start_streaming', methods=['POST'])
+@login_required
 async def start_streaming():
     '''Start the streaming manager.
     
@@ -565,6 +655,7 @@ async def start_streaming():
 
 # Stop streaming
 @app.route('/stop_streaming', methods=['POST'])
+@login_required
 async def stop_streaming():
     '''Stop the streaming manager.
 
@@ -585,6 +676,7 @@ async def stop_streaming():
 
 # Start content manager
 @app.route('/start_content', methods=['POST'])
+@login_required
 async def start_content():
     '''Start the content manager.'''
     if content_manager:
@@ -596,6 +688,7 @@ async def start_content():
 
 # Stop content manager
 @app.route('/stop_content', methods=['POST'])
+@login_required
 async def stop_content():
     '''Stop the content manager.'''
     if content_manager:
@@ -607,6 +700,7 @@ async def stop_content():
 
 # Serve images
 @app.route('/content/images/<path:filename>')
+@login_required
 async def serve_image(filename):
     """Serve files from the content/images/ directory."""
     if ".." in filename or filename.startswith("/"):
@@ -643,6 +737,10 @@ async def main():
 
     # Initialize Mastodon
     mastodon = Mastodon(access_token = 'usercred.secret')
+
+    # Hash password
+    #hashed_password = hash_password('youcanloginnow')
+    #print(hashed_password)
 
     global user
     user = mastodon.me()
