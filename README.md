@@ -1,4 +1,4 @@
-[CaaS](components/logo.svg)
+![CaaS](components/logo.svg)
 
 # CatsAsAService (CaaS)
 
