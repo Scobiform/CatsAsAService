@@ -93,9 +93,10 @@
     ],
     "postContent": "True",
     "content_path": "content/images/",
-    "last_posted": 102644,
-    "interval": "7",
+    "last_posted": "100115.jpg",
+    "interval": "420",
     "heartbeatIcon": " ",
+    "status_post": "False",
     "tootPattern": "#CatsOfMastodon",
     "tootAltTextPattern": "#Cat"
 }

@@ -173,6 +173,10 @@ def get_or_create_app_secret():
 def generate_secret_key():
     return os.urandom(24).hex()
 
+# Create image folder
+if not os.path.exists(config['content_path']):
+    os.makedirs(config['content_path'])
+
 # Quart app
 app = Quart(__name__)
 app.secret_key = get_or_create_app_secret() # app.secret_key
@@ -239,58 +243,67 @@ class ContentManager:
         mastodon (Mastodon): The Mastodon instance to use.
         config (dict): Configuration settings, including interval and content path.
         loop (asyncio.BaseEventLoop): The event loop to run asynchronous tasks.
+    
     '''
     def __init__(self, mastodon, config, loop):
         self.mastodon = mastodon
         self.config = config
         self.loop = loop
-        self.toot_tasklist = []
+        self.task = None
 
     async def toot_content(self):
-        '''Post content to Mastodon with a specified interval.
-        '''
+        '''Post content to Mastodon with a specified interval.'''
         try:
-            # Read the last posted number from the file
-            last_posted = self.config['last_posted']
-            
-            # Get the list of all filenames in the directory and sort them
-            all_files = sorted(os.listdir(self.config['content_path']), key=lambda x: int(x.split('.')[0]))
-            
-            # Find the index of the last posted file, if it exists
-            last_index = next((i for i, filename in enumerate(all_files) if filename.startswith(str(last_posted))), -1)
+            # Get the list of all filenames in the directory
+            all_files = sorted(os.listdir(self.config['content_path']))
 
-            for filename in all_files[last_index + 1:]:
-                file_num = int(filename.split('.')[0])
-                media_path = os.path.join(self.config['content_path'], str(filename))
-                #print(media_path)
+            # Determine the last posted filename
+            last_posted = self.config.get('last_posted', None)
+            if last_posted in all_files:
+                last_index = all_files.index(last_posted)
+                # Start with the next file after the last posted one, or at the beginning if it was the last
+                all_files = all_files[last_index+1:] + all_files[:last_index+1]
+            else:
+                # If the last posted file is not in the directory, start from the beginning
+                self.config['last_posted'] = all_files[-1]  # Assume the last one was posted
 
-                #alt_text = "#Cat" + str(file_num)
-                #metadata = self.mastodon.media_post(media_path, "image/jpg", description=alt_text)
-                
-                # Uncomment to post
-                # toot_text = "#CatsOfMastodon\n" + alt_text + "\n\n"
-                # self.mastodon.status_post(toot_text, media_ids=[metadata['id']], visibility="public")
+            while True:  # Continuously loop through the files
+                for filename in all_files:
+                    media_path = os.path.join(self.config['content_path'], filename)
+                    #print(media_path)
 
-                message = f"<img src='{media_path}' alt='Cat {file_num}' />"
-                await broadcast_message(message)
-                
-                self.config['last_posted'] = file_num
-                await update_settings('last_posted', file_num)
+                    if self.config['status_post'] == 'True':
+                        # Upload the media
+                        alt_text = self.config['tootAltTextPattern']
+                        metadata = self.mastodon.media_post(media_path, "image/jpg", description=alt_text)
+                        
+                        # Toot the content
+                        toot_text = self.config['tootPattern']
+                        self.mastodon.status_post(toot_text, media_ids=[metadata['id']], visibility="public")
 
-                print(f"Posted: {file_num}")
-                await asyncio.sleep(int(self.config['interval']))
+                    message = f"<img src='{media_path}' alt='{filename}' />"
+                    await broadcast_message(message)
+                    
+                    # Save the last posted filename
+                    self.config['last_posted'] = filename
+                    await update_settings('last_posted', filename)
+
+                    print(f"Posted: {filename}")
+                    await asyncio.sleep(int(self.config['interval']))
+
+                # After finishing the loop, start over from the beginning
+                all_files = sorted(os.listdir(self.config['content_path']))
 
         except Exception as e:
-            logging.error(f"Error posting content: " + str(e) + " " + str(type(e)))
+            logging.error(f"Error posting content: {e} {type(e)}")
 
     async def start(self):
         '''Start the content manager.'''
         try:
             await broadcast_message("Starting content manager...")
-            # Run in asyncio task
-            task = asyncio.create_task(self.toot_content())
-            self.toot_tasklist.append(task)
-            await asyncio.gather(*self.toot_tasklist)
+            # Create task and run it
+            self.task = asyncio.create_task(self.toot_content())
+            await self.task
 
         except Exception as e:
             logging.error(f"Failed to start content manager: {e}")
@@ -298,11 +311,8 @@ class ContentManager:
     async def stop(self):
         '''Stop the content manager.'''
         await broadcast_message("Stopping content manager...")
-        for task in self.toot_tasklist:
-            task.cancel()
-        # Wait for all tasks to be cancelled, ignoring cancellation exceptions
-        await asyncio.gather(*self.toot_tasklist, return_exceptions=True)
-        self.toot_tasklist = []
+        self.task.cancel()
+        self.task = None
 
 # Hashtag Listener
 class HashtagListener(StreamListener):
