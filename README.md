@@ -1,4 +1,5 @@
-![CaaS](components/logo.svg)
+<img src="components/logo.svg" alt="CaaS" width="100" height="100">
+
 
 # CatsAsAService (CaaS)
 
