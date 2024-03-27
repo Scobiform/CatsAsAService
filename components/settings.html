@@ -53,6 +53,7 @@
     <hr>
 
     <legend>Skip if too many hashtags</legend>
+
     <label class="switch" for="hasTooManyHashtags">Skip Hashtags:
         <input type="hidden" id="hasTooManyHashtagsHidden" name="hasTooManyHashtags" value="False">
         <input type="checkbox" id="hasTooManyHashtags" name="hasTooManyHashtags" value="True" aria-label="Skip Hashtags" 
@@ -62,6 +63,11 @@
         </div>
     </label>
 
+    <!-- Slider range for maxHashtags in steps from 1 - 10 -->
+    <label for="maxHashtags">Max Hashtags:</label>
+    <input type="range" id="maxHashtags" name="maxHashtags" min="1" max="10" step="1" value="{{ configuration.maxHashtags }}">
+    <span id="maxHashtagsValue">{{ configuration.maxHashtags }}</span>
+    
     <hr>
 
     <legend>Check if there is a bad word</legend>
@@ -88,7 +94,7 @@
 
     <hr>
 
-    <legend>Boost</legend>
+    <legend>{{ boost | safe }} Boost the toot</legend>
     <label class="switch" for="boost">Boost:
         <input type="hidden" id="boostHidden" name="boost" value="False">
         <input type="checkbox" id="boost" name="boost" value="True" aria-label="Boost" 
@@ -100,7 +106,7 @@
 
     <hr>
 
-    <legend>favorite</legend>
+    <legend>{{ favorite | safe }} Favorite it! </legend>
     <label class="switch" for="favorite">Favorite:
         <input type="hidden" id="favoriteHidden" name="favorite" value="False">
         <input type="checkbox" id="favorite" name="favorite" value="True" aria-label="Favorite" 
@@ -111,8 +117,6 @@
     </label>
 
     <hr>
-
-
 
     <legend>{{ localization.en.legend.bot_settings }}</legend>
     <label for="heartbeatIcon">Heartbeat Icon:</label>
@@ -126,6 +130,7 @@
         {% endfor %}
     </div>
     <div class="add-icon" onclick="addInput('Hashtags')">➕</div>
+    <div class="remove-icon" onclick="removeInput('Hashtags')">➖</div>
 
     <hr>
 
@@ -137,6 +142,7 @@
         {% endfor %}
     </div>
     <div class="add-icon" onclick="addInput('bad_words')">➕</div>
+    <div class="remove-icon" onclick="removeInput('bad_words')">➖</div>
 
     <hr>
 
@@ -148,6 +154,7 @@
         {% endfor %}
     </div>
     <div class="add-icon" onclick="addInput('bad_hashtags')">➕</div>
+    <div class="remove-icon" onclick="removeInput('bad_hashtags')">➖</div>
 
     <hr>
 
@@ -159,8 +166,26 @@
         {% endfor %}
         </div>
     <div class="add-icon" onclick="addInput('bad_accounts')">➕</div>
+    <div class="remove-icon" onclick="removeInput('bad_accounts')">➖</div>
 
     <hr>
+
+    <h3>AltText reply:</h3>
+    <legend>Reply immediately if a media toot has no #AltText</legend>
+    <label class="switch" for="reply">Reply:
+        <input type="hidden" id="replyHidden" name="reply" value="False">
+        <input type="checkbox" id="reply" name="reply" value="True" aria-label="Reply" 
+                {{ "checked" if configuration.reply == 'True' else "" }}
+        >
+        <div class="slider">
+        </div>
+    </label>
+
+    <br>
+    <br>
+
+    <label for="replyPattern">Reply Pattern:</label>
+    <textarea id="replyPattern" name="replyPattern" aria-label="Reply Pattern" rows="4" cols="50">{{ configuration.replyPattern }}</textarea>
 
     <h3>Toot content</h3>
     <legend>Start automated tooting or only broadcast to messages...</legend>
@@ -235,6 +260,23 @@
     container.appendChild(lineBreak);
     }
 
+    // Function to remove input fields from the form
+    function removeInput(arrayName) {
+        const container = document.getElementById(arrayName + 'Container');
+        
+        // Check if there are at least two children (input and line break)
+        if (container.children.length > 1) {
+            // Remove the last input field (assumed to be second-last child)
+            container.removeChild(container.lastElementChild.previousElementSibling);
+            // Remove the last line break (now the last child)
+            container.removeChild(container.lastElementChild);
+        } else if (container.children.length === 1) {
+            // If there's only one child, remove it (for the case of a single input without a line break)
+            container.removeChild(container.lastElementChild);
+        }
+    }
+
+
 
     // Function to update the slider value
     const slider = document.getElementById('interval');
@@ -242,5 +284,13 @@
 
     slider.addEventListener('input', function() {
         output.textContent = this.value + ' seconds'; 
+    });
+
+    // Function to update the slider value for maxHashtags
+    const maxHashtagsSlider = document.getElementById('maxHashtags');
+    const maxHashtagsOutput = document.getElementById('maxHashtagsValue');
+
+    maxHashtagsSlider.addEventListener('input', function() {
+        maxHashtagsOutput.textContent = this.value; // Display the number without additional text
     });
 </script>

@@ -5,7 +5,7 @@ const socket = new WebSocket('ws://' + window.location.host + '/ws');
       
 // Connection opened
 socket.addEventListener('open', function (event) {
-  socket.send('Client connected...'); // Send a message to the server
+  socket.send('CAT connected...'); // Send a message to the server
 });
 
 // Listen for messages

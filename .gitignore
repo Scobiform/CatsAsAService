@@ -2,5 +2,6 @@ content/images/*
 content/videos/*
 content/text-patterns/*
 content/audios/*
+config/users.json
 *.secret
 *.log

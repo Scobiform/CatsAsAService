@@ -18,6 +18,10 @@ legend {
     font-size: medium;
 }
 
+legend svg {
+    margin: 0;
+}
+
 hr {
     border: 0;
     height: 0;
@@ -35,9 +39,13 @@ textarea {
     width: -webkit-fill-available;
 }
 
+input:hover, input:focus {
+  outline: none;
+}
+
+
 input[type="text" i], input[type="password" i], input[type="email" i] {
     appearance: auto;
-    background-color: var(--k);
     color: var(--00);
     border: 1px var(--k) solid;
     padding: 0.21rem;
@@ -46,8 +54,9 @@ input[type="text" i], input[type="password" i], input[type="email" i] {
 }
 
 input[type="text" i]:focus, input[type="password" i]:focus, input[type="email" i]:focus {
-    background-color: var(--ff);
-    color: var(--00);
+    appearance: auto;
+    border: 1px var(--k) solid;
+    padding: 0.21rem;
     border: 1px var(--m) solid;
 }
 
@@ -76,7 +85,7 @@ input[type=range]::-webkit-slider-thumb {
     cursor: pointer; 
 }
 
-input[type="submit" i], input[type="reset" i] {
+input[type="submit" i], input[type="reset" i], button[type="submit" i] {
     appearance: auto;
     user-select: none;
     text-align: center;
@@ -91,7 +100,11 @@ input[type="submit" i], input[type="reset" i] {
     width: -moz-available;
 }
 
-input[type="submit" i]:hover, input[type="reset" i]:hover {
+button[type="submit" i] {
+    cursor: pointer;
+}
+
+input[type="submit" i]:hover, input[type="reset" i]:hover, button[type="submit" i]:hover {
     background-color: var(--m);
     color: var(--ff);
     border: 1px var(--m) solid;
@@ -109,12 +122,12 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
   }
 
 .threadWorker button {
-    background-color: var(--ff);
+    background-color: var(--k);
     color: var(--c);
     border: none;
     width: inherit;
     margin: 0 auto;
-    font-size: xxx-large;
+    padding: 0.42rem
 }
 
 .threadWorker button:hover {
@@ -135,6 +148,7 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
     width: -moz-available;
     width: -webkit-fill-available;
     height: auto;
+    display: block;
 }
 
 /* Bot messages */
@@ -201,6 +215,7 @@ input[type="submit" i]:hover, input[type="reset" i]:hover {
     padding: 14px 16px;
     transition: 0.3s;
     font-size: 17px;
+    font-weight: var(--fontWeight)
   }
   
   /* Change background color of buttons on hover */
@@ -274,7 +289,8 @@ input:checked + .slider:before {
   transform: translateX(26px);
 }
 
-/* Adding new input elements */
+/* Adding and removing input elements */
+
 .add-icon {
   cursor: pointer;
   font-size: medium;
@@ -282,9 +298,23 @@ input:checked + .slider:before {
   float: right;
 }
 
+.hashtag-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 5px;
+}
+
+.hashtag-row input {
+  margin-right: 10px;
+}
+
+.remove-icon {
+  cursor: pointer;
+}
+
+
 /* 
     User | Flyout menu 
-
 */
 
 .uiFlyout{
@@ -299,7 +329,7 @@ input:checked + .slider:before {
   position: fixed;
   top: 0;
   right: 0;
-  width: 21vw;
+  width: 28vw;
   height: 100%;
   background-color: var(--k);
   transition: right 0.3s ease;
@@ -334,5 +364,11 @@ input:checked + .slider:before {
 
 .flyoutMenuButton {
   display: block;
-  margin: 10px 0;
+  margin: 0;
+}
+
+
+.toot {
+  position: relative;
+  display: inline-block;
 }

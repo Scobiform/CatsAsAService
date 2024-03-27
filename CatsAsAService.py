@@ -46,6 +46,7 @@ users = {}
 tasks = [] # List of threads we will start
 
 # Global set for tracking processed toot IDs
+global processed_ids
 processed_ids = set()
 
 # Load the configuration from the settings.json file
@@ -83,6 +84,38 @@ def load_localization():
 
 # Load the localization
 localization = load_localization()
+
+# Get or create users.json file
+def get_or_create_users_json():
+    filename = 'config/users.json'
+    
+    # Check if the file already exists
+    if os.path.exists(filename):
+        # The file exists, so load its content
+        try:
+            with open(filename, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+            print("Existing users.json loaded.")
+        except json.JSONDecodeError as e:
+            print(f"An error occurred while decoding {filename}: {e}")
+            data = {}
+    else:
+        # The file does not exist, so create it with default data
+        data = {
+            "users": {
+                "admin": "$2b$12$.eSSyET2oD52HB9VeBPjZODWxE9r/HT7Sc6hnVYtwkFQcq9eP5zce",
+                "editor": "$2b$12$.eSSyET2oD52HB9VeBPjZODWxE9r/HT7Sc6hnVYtwkFQcq9eP5zce"
+            }
+        }
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                json.dump(data, f, ensure_ascii=False, indent=4)
+            print(f"New {filename} created.")
+        except Exception as e:
+            print(f"Failed to create {filename}: {e}")
+
+    return data
+users = get_or_create_users_json()
 
 # Load the users from the users.json file
 # Load users from JSON file
@@ -340,8 +373,6 @@ class HashtagListener(StreamListener):
         # Skip counter - if it's 0, the status will be boosted
         skipCounter = 0  
 
-        global processed_ids
-
         # Skip if the status ID has already been processed
         if status.id in processed_ids:
             logging.info('....already processed')
@@ -358,7 +389,8 @@ class HashtagListener(StreamListener):
 
         # Log the status to messages
         if skipCounter == 0:
-            message = f"<br>{status.account.username} tooted: {status.content} <br>"
+            # username with link to profile, status content with link to status
+            message = f"<div class='toot'><a href='{status.account.url}' target='_blank'>{status.account.username}</a>: {status.content} <a href='{status.url}' target='_blank'>View Status</a></div>"
             asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
         
         try:
@@ -380,11 +412,18 @@ class HashtagListener(StreamListener):
                     for media in status.media_attachments:
                         # Skip if no Alt Text
                         if not media.description:
-                            logging.info('....no alt text - skipped')
-                            skipCounter += 1
+                            logging.info('....no alt text')
+                            # Inform user that there is no alt text
+                            if config['reply'] == 'True' and skipCounter == 0:
+                                reply_text = config['replyPattern']
+                                #self.mastodon.status_post(reply_text, in_reply_to_id=status.id)
+                                asyncio.run_coroutine_threadsafe(broadcast_message(reply_text), self.loop)
+                                logging.info('....replied')
+                            break
+                    skipCounter += 1
                 # Skip if too many hashtags
                 if config['hasTooManyHashtags'] == 'True':
-                    if len(status.tags) > 9:
+                    if len(status.tags) > int(config['maxHashtags']):
                         logging.info('....too many hashtags - skipped')
                         skipCounter += 1
                 # Check if there is a bad word
@@ -517,11 +556,16 @@ class StreamingManager:
         await asyncio.gather(*self.tasks, return_exceptions=True)
         self.tasks = []  # Reset tasks list
 
-# Get settings
 async def get_settings():
+    # Icons
+    favorite_icon_svg = await get_any_file_as_component('components/favorite.svg')
+    boost_icon_svg = await get_any_file_as_component('components/boost.svg')
+
+    # Load the settings HTML template
     async with aiofiles.open('components/settings.html', 'r', encoding='utf-8') as file:
         settings_template = await file.read()
-    return await render_template_string(settings_template, configuration=config, localization=localization)
+
+    return await render_template_string(settings_template, favorite=favorite_icon_svg, configuration=config, localization=localization, boost=boost_icon_svg)
 
 # Get worker status
 async def get_worker_status():
@@ -625,7 +669,7 @@ async def index():
         workerStatus=workerStatus,
         logo=logo,
         media_list=media_list,
-        login=login
+        login=login,
     )
 
 # Submit settings

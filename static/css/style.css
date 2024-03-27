@@ -10,7 +10,8 @@
   /*  */
   --maxHeight: 91vh;
   --rightPanelWidth: 49vw;
-  --font: monospace;
+  --font: inter;
+  --fontWeight: 280;
 }
 
 /* Global styles */
@@ -25,6 +26,7 @@ body {
   margin: 0;
   padding: 0;
   background-color: var(--ff);
+  font-weight: var(--fontWeight);
 }
 
 h1 {
@@ -112,8 +114,7 @@ li a:hover {
 }
 
 .logo svg {
-  color: var(--00);
-  filter: contrast(0.5)
+  margin: 0;
 }
 
 .userAvatar img {
