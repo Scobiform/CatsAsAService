@@ -45,6 +45,9 @@ users = {}
 # Setting up threads
 tasks = [] # List of threads we will start
 
+# Global set for tracking processed toot IDs
+processed_ids = set()
+
 # Load the configuration from the settings.json file
 def load_config():
     try:
@@ -322,8 +325,6 @@ class HashtagListener(StreamListener):
         mastodon_instance (Mastodon): The Mastodon instance to use.
         loop (asyncio.AbstractEventLoop): The event loop to use.
         
-    #ToDo: Keep track of the last status ID to avoid reboosting the same status
-
     '''
     # Constructor
     def __init__(self, mastodon_instance, loop):
@@ -331,25 +332,34 @@ class HashtagListener(StreamListener):
         self.loop = loop
         self.heartbeatIcon = config['heartbeatIcon']
         self.config = config
-        self.last_id = None
 
     # Called when a new status arrives
     def on_update(self, status):
-
-        if self.last_id == status.id:
-            logging.info('....already boosted')
-            return
-        
-        # Set the last ID
-        self.last_id = status.id
-        print(f"Status ID: {self.last_id}")
-
-        # Log the status
-        message = f"<br>{status.account.username} tooted: {status.content} <br>"
-        asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
+        '''Process the status update and boost it if it meets the criteria.'''
 
         # Skip counter - if it's 0, the status will be boosted
         skipCounter = 0  
+
+        global processed_ids
+
+        # Skip if the status ID has already been processed
+        if status.id in processed_ids:
+            logging.info('....already processed')
+            skipCounter += 1
+                 
+        # Set the status ID as processed
+        processed_ids.add(status.id)
+        if skipCounter == 0:
+            print(f"Processing Status ID: {status.id}")
+
+        # Clear the processed IDs set if it gets too large
+        if len(processed_ids) > 1000:
+            processed_ids.clear()
+
+        # Log the status to messages
+        if skipCounter == 0:
+            message = f"<br>{status.account.username} tooted: {status.content} <br>"
+            asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
         
         try:
             if status.account.username == self.mastodon.me().username:
@@ -405,11 +415,12 @@ class HashtagListener(StreamListener):
                                 asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
                                 logging.info('....image boosted')
                             if media.type == "video":
-                                message = f"<video src='{media.url}' controls />"
+                                message = f"<video controls><source src='{media.url}' type='video/mp4'></video>"
                                 asyncio.run_coroutine_threadsafe(broadcast_message(message), self.loop)
                                 logging.info('....video boosted')
+
             # Output score and set skipCounter to 0
-            asyncio.run_coroutine_threadsafe(broadcast_message('Score: ' + str(skipCounter)), self.loop)
+            #asyncio.run_coroutine_threadsafe(broadcast_message('Score: ' + str(skipCounter)), self.loop)
             skipCounter = 0
         except MastodonInternalServerError as errorcode:
             logging.error("MastodonInternalServerError:" + str(errorcode))
