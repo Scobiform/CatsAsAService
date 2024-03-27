@@ -16,8 +16,16 @@
         <meta name="robots" content="index, follow">
     </head>
     <body>
-    
-    <div>{{ login | safe }}</div>
+    <!-- Flyout Menu -->
+    <!-- Account Button -->
+    <button id="accountButton" style="position: fixed; top: 0; right: 0; z-index: 1001;" class="uiFlyout">☸</button>
+    <!-- Close Menu Button (Initially hidden) -->
+    <button id="closeMenuButton" class="flyoutMenuButton uiFlyout" onclick="closeFlyoutMenu()" style="position: fixed; top: 0; right: 0; z-index: 1001; display: none;">☸</button>
+    <div id="flyoutMenu" class="rightFlyoutMenu" style="display: none;">
+        <div class="flyoutMenu">
+            {{ login | safe }}
+        </div>
+    </div>
 
     <div class="leftPanel">
         <!-- logo  -->

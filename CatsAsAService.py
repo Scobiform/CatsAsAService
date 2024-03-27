@@ -608,17 +608,13 @@ async def index():
     # Get login component
     login = await get_login()
 
-    # Get trending hashtags
-    trending_hashtags = await get_trending_hashtags()
-
     return await render_template('index.html',
         accountInfo=accountInfo,
         settings=settings,
         workerStatus=workerStatus,
         logo=logo,
         media_list=media_list,
-        login=login,
-        trending_hashtags=trending_hashtags
+        login=login
     )
 
 # Submit settings
@@ -737,6 +733,22 @@ async def serve_image(filename):
         abort(404)
 
     return await send_from_directory(config['content_path'], filename)
+
+# Get instance information
+@app.route('/instance')
+@login_required
+async def get_instance():
+    ''' Get the instance information.'''
+    instance = mastodon.instance()
+    return jsonify(instance)
+
+# Get node information
+@app.route('/nodeinfo')
+@login_required
+async def get_node():
+    ''' Get the node information.'''
+    node = mastodon.instance_nodeinfo()
+    return jsonify(node)
 
 # WebSocket route
 @app.websocket("/ws")

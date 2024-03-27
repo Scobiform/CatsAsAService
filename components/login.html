@@ -1,16 +1,13 @@
-<!-- Account Button -->
-<button id="accountButton" style="position: fixed; top: 0; right: 0; z-index: 1001;" class="uiFlyout">☸</button>
-<!-- Close Menu Button (Initially hidden) -->
-<button id="closeMenuButton" class="flyoutMenuButton uiFlyout" onclick="closeFlyoutMenu()" style="position: fixed; top: 0; right: 0; z-index: 1001; display: none;">☸</button>
-
 <!-- Flyout Menu -->
-<div id="flyoutMenu" class="rightFlyoutMenu" style="display: none;">
-    <div class="flyoutMenu">
         {% if current_user.is_authenticated %}
             <div>Welcome, {{ current_user.auth_id }}!</div>
             <form action="/logout" method="post">
                 <input type="submit" value="Logout" aria-label="Logout" class="uiButton">
             </form>
+
+            <a href="/instance" aria-label="Instance information" class="uiButton">Instance</a>
+            <a href="/nodeinfo" aria-label="Node information" class="uiButton">Node Info</a>
+
         {% else %}
             <div class="login">
                 <form action="/login" method="post">
@@ -20,8 +17,6 @@
                 </form>
             </div>
         {% endif %}
-    </div>
-</div>
 
 <script>
     document.getElementById('accountButton').addEventListener('click', function() {

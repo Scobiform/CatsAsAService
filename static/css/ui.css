@@ -310,6 +310,28 @@ input:checked + .slider:before {
   margin-top: 4.2rem;
 }
 
+.flyoutMenu li {
+  list-style-type: none;
+  float: none;
+}
+
+.flyoutMenu li a {
+  display: block;
+  color: var(--m);
+  text-align: center;
+  padding: 0.42rem 0px;
+  text-decoration: none;
+}
+
+.flyoutMenu li a:hover {
+  display: block;
+  color: var(--m);
+  text-align: center;
+  padding: 0.42rem 0px;
+  text-decoration: none;
+  color: var(--ff);
+}
+
 .flyoutMenuButton {
   display: block;
   margin: 10px 0;
