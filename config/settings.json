@@ -17,6 +17,8 @@
     "hasBadHashtag": "False",
     "hasTooManyHashtags": "False",
     "hasMedia": "True",
+    "boost": "False",
+    "favorite": "False",
     "hashtags": [
         "CatsOfMastodon",
         "Caturday",
@@ -93,7 +95,7 @@
     ],
     "postContent": "True",
     "content_path": "content/images/",
-    "last_posted": "100115.jpg",
+    "last_posted": "100157.jpg",
     "interval": "420",
     "heartbeatIcon": " ",
     "status_post": "False",

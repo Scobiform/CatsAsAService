@@ -88,6 +88,31 @@
 
     <hr>
 
+    <legend>Boost</legend>
+    <label class="switch" for="boost">Boost:
+        <input type="hidden" id="boostHidden" name="boost" value="False">
+        <input type="checkbox" id="boost" name="boost" value="True" aria-label="Boost" 
+                {{ "checked" if configuration.boost == 'True' else "" }}
+        >
+        <div class="slider">
+        </div>
+    </label>
+
+    <hr>
+
+    <legend>favorite</legend>
+    <label class="switch" for="favorite">Favorite:
+        <input type="hidden" id="favoriteHidden" name="favorite" value="False">
+        <input type="checkbox" id="favorite" name="favorite" value="True" aria-label="Favorite" 
+                {{ "checked" if configuration.favorite == 'True' else "" }}
+        >
+        <div class="slider">
+        </div>
+    </label>
+
+    <hr>
+
+
 
     <legend>{{ localization.en.legend.bot_settings }}</legend>
     <label for="heartbeatIcon">Heartbeat Icon:</label>
@@ -138,7 +163,7 @@
     <hr>
 
     <h3>Toot content</h3>
-    <legend>Start automated tooting...</legend>
+    <legend>Start automated tooting or only broadcast to messages...</legend>
     <label class="switch" for="status_post">Toot status:
         <input type="hidden" id="status_postHidden" name="status_post" value="False">
         <input type="checkbox" id="status_post" name="status_post" value="True" aria-label="status_post" 

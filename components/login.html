@@ -7,8 +7,10 @@
 <div id="flyoutMenu" class="rightFlyoutMenu" style="display: none;">
     <div class="flyoutMenu">
         {% if current_user.is_authenticated %}
-        <div>Welcome, {{ current_user.auth_id }}!</div>
-        <div><a href="/logout">Logout</a></div>
+            <div>Welcome, {{ current_user.auth_id }}!</div>
+            <form action="/logout" method="post">
+                <input type="submit" value="Logout" aria-label="Logout" class="uiButton">
+            </form>
         {% else %}
             <div class="login">
                 <form action="/login" method="post">

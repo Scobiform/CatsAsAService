@@ -9,7 +9,7 @@ import aiofiles
 from threading import Thread
 from datetime import date
 from concurrent.futures import ThreadPoolExecutor
-from quart import Quart, abort, render_template, send_from_directory, websocket, render_template_string, request, jsonify
+from quart import Quart, abort, render_template, send_from_directory, websocket, render_template_string, request, jsonify, redirect, url_for
 from quart_auth import (
     AuthUser, current_user, login_required, login_user, logout_user, QuartAuth
 )
@@ -311,8 +311,9 @@ class ContentManager:
     async def stop(self):
         '''Stop the content manager.'''
         await broadcast_message("Stopping content manager...")
-        self.task.cancel()
-        self.task = None
+        if self.task is not None:
+            self.task.cancel()
+            self.task = None
 
 # Hashtag Listener
 class HashtagListener(StreamListener):
@@ -392,8 +393,12 @@ class HashtagListener(StreamListener):
                 # Only boost if skipCounter is 0
                 if skipCounter == 0:
                     if str(status.in_reply_to_account_id) == 'None':
-                        #self.mastodon.status_reblog(status.id)
-                        #self.mastodon.status_favourite(status.id)
+                        if self.config['boost'] == 'True':
+                            self.mastodon.status_reblog(status.id)
+                            logging.info('....boosted')
+                        if self.config['favorite'] == 'True':
+                            self.mastodon.status_favourite(status.id)
+                            logging.info('....favorited')
                         for media in status.media_attachments:
                             if media.type == "image":
                                 message = f"<a href='{status.url}' target='_blank'><img src='{media.url}' alt='{media.description}' /></a>"
@@ -526,6 +531,11 @@ async def get_account():
     html = f'<div class="userAvatar"><img src="{user.avatar}" alt="{user.username}" /></div>'
     return html
 
+# Get trending hashtags
+async def get_trending_hashtags():
+    trending_hashtags = mastodon.trending_tags()
+    return trending_hashtags
+
 # Get media from content_path
 async def get_media():
     ''' Get the media files from the content_path and return them as components.
@@ -567,7 +577,7 @@ async def login():
     if hashed_password and check_password(hashed_password, password):
         user = AuthUser(username)
         login_user(user)
-        return await index()
+        return redirect(url_for('index'))
     else:
         return 'Login Failed', 401
 
@@ -575,7 +585,7 @@ async def login():
 @app.route('/logout', methods=['POST'])
 async def logout():
     logout_user()
-    return jsonify({'status': 'Logged out successfully'})
+    return redirect(url_for('index'))
 
 # Route for the index page
 @app.route('/')
@@ -598,13 +608,17 @@ async def index():
     # Get login component
     login = await get_login()
 
+    # Get trending hashtags
+    trending_hashtags = await get_trending_hashtags()
+
     return await render_template('index.html',
         accountInfo=accountInfo,
         settings=settings,
         workerStatus=workerStatus,
         logo=logo,
         media_list=media_list,
-        login=login
+        login=login,
+        trending_hashtags=trending_hashtags
     )
 
 # Submit settings
@@ -746,6 +760,7 @@ async def main():
     check_for_secrets()  # Ensure this function sets necessary secrets
 
     # Initialize Mastodon
+    global mastodon
     mastodon = Mastodon(access_token = 'usercred.secret')
 
     # Hash password

@@ -25,14 +25,16 @@
             {{ logo | safe }}
         </div>
 
-        <div class="threadWorker">
-            {{ workerStatus | safe }}
-            {% for task in tasks %}
-                <div class="task">
-                    {{ task | safe }}
-                </div>
-            {% endfor %}
-        </div>
+        {% if current_user.is_authenticated %}
+            <div class="threadWorker">
+                {{ workerStatus | safe }}
+                {% for task in tasks %}
+                    <div class="task">
+                        {{ task | safe }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
 
         <div class="accountInformation">
             {{ accountInfo | safe }}
@@ -43,8 +45,10 @@
 
         <div class="tab">
             <button class="tablinks" onclick="openTab(event, 'Messages')">Messages</button>
+            {% if current_user.is_authenticated %}
             <button class="tablinks" onclick="openTab(event, 'Media')">Media</button>
             <button class="tablinks" onclick="openTab(event, 'Settings')">Settings</button>
+            {% endif %}
         </div>
 
         <!-- Tab content -->
@@ -52,19 +56,21 @@
             <div id="messages"></div>
         </div>
 
-        <div id="Media" class="tabcontent">
-            <div class="media">
-                {% for media in media_list %}
-                    <img src="placeholder.jpg" data-src="content/images/{{ media | safe }}" alt="media" width="100%" class="lazy-load"></img>
-                {% endfor %}
+        {% if current_user.is_authenticated %}
+            <div id="Media" class="tabcontent">
+                <div class="media">
+                    {% for media in media_list %}
+                        <img src="placeholder.jpg" data-src="content/images/{{ media | safe }}" alt="media" width="100%" class="lazy-load"></img>
+                    {% endfor %}
+                </div>
             </div>
-        </div>
 
-        <div id="Settings" class="tabcontent">
-            <div class="config">
-                {{ settings | safe }}
+            <div id="Settings" class="tabcontent">
+                <div class="config">
+                    {{ settings | safe }}
+                </div>
             </div>
-        </div>
+        {% endif %}
     </div>
 
     <!-- Footer content -->
