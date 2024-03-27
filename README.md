@@ -1,8 +1,6 @@
 # CatsAsAService (CaaS)
 
-CatsAsAService is a bot for the Mastodon social network with an quart inzterface. 
-
-<img src="components/logo.svg" alt="CaaS" width="100" height="100" style="float:left;padding:0.42rem;">
+<img src="components/logo.svg" alt="CaaS" width="100" height="100">
 
 ![GPLv3 License](https://img.shields.io/badge/license-GPLv3-blue.svg)
 ![Python version](https://img.shields.io/badge/python-3.x-blue.svg)
