@@ -331,7 +331,7 @@ class HashtagListener(StreamListener):
         self.loop = loop
         self.heartbeatIcon = config['heartbeatIcon']
         self.config = config
-        self.ä = None
+        self.last_id = None
 
     # Called when a new status arrives
     def on_update(self, status):
